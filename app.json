@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "boilerplate",
-    "slug": "boilerplate",
+    "name": "Da'Club",
+    "slug": "daclub",
     "version": "1.0.0",
-    "scheme": "boilerplate",
+    "scheme": "com.daclub",
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -29,13 +29,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bomstechnology.daclub"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.bomstechnology.daclub"
     }
   }
 }

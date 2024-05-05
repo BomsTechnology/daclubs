@@ -10,7 +10,7 @@ export default function Page() {
         <YStack>
           <Title>OTP</Title>
         </YStack>
-        <Link href={{ pathname: '/(app)/(home)/feed' }} asChild>
+        <Link href={{ pathname: '/(app)/(shop)/home' }} asChild>
           <Button>
             <ButtonText>Go to Home</ButtonText>
           </Button>

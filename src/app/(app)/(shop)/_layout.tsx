@@ -9,25 +9,25 @@ const HomeLayout = () => {
         headerLeft: () => <DrawerToggleButton tintColor="#fff" />,
       }}>
       <Tabs.Screen
-        name="feed/index"
+        name="home/index"
         options={{
           title: 'Feed',
         }}
       />
       <Tabs.Screen
-        name="users/index"
+        name="cart/index"
         options={{
           title: 'Users',
         }}
       />
       <Tabs.Screen
-        name="chat/index"
+        name="favorite/index"
         options={{
           title: 'Chat',
         }}
       />
       <Tabs.Screen
-        name="quizz/index"
+        name="account/index"
         options={{
           title: 'Quizz',
         }}

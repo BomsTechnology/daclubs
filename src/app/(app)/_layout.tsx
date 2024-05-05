@@ -6,34 +6,28 @@ const AppLayout = () => {
         headerShown: true,
       }}>
       <Drawer.Screen
-        name="(home)"
+        name="(shop)"
         options={{
           drawerLabel: 'Home',
           headerShown: false,
         }}
       />
       <Drawer.Screen
-        name="profile/index"
+        name="sneakers/index"
         options={{
           title: 'Profile',
         }}
       />
       <Drawer.Screen
-        name="post/index"
+        name="marks/index"
         options={{
           title: 'Post',
         }}
       />
       <Drawer.Screen
-        name="setting/index"
+        name="store/index"
         options={{
           title: 'setting',
-        }}
-      />
-      <Drawer.Screen
-        name="organizer/index"
-        options={{
-          title: 'organizer',
         }}
       />
     </Drawer>
