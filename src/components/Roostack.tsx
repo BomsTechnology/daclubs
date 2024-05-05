@@ -29,7 +29,7 @@ const Roostack = () => {
             title: 'Otp',
           }}
         />
-        <Stack.Screen name="(app)" />
+        <Stack.Screen name="(shop)" />
       </Stack>
     </Theme>
   );

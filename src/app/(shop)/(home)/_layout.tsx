@@ -3,13 +3,12 @@ const AppLayout = () => {
   return (
     <Drawer
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
       }}>
       <Drawer.Screen
-        name="(shop)"
+        name="home/index"
         options={{
           drawerLabel: 'Home',
-          headerShown: false,
         }}
       />
       <Drawer.Screen

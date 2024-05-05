@@ -3,7 +3,7 @@ import { createInterFont } from '@tamagui/font-inter';
 import { createMedia } from '@tamagui/react-native-media-driver';
 import { shorthands } from '@tamagui/shorthands';
 import { themes, tokens } from '@tamagui/themes';
-import { createTamagui, styled, SizableText, H1, YStack } from 'tamagui';
+import { createTamagui, styled, SizableText, H1, YStack, createFont } from 'tamagui';
 
 const animations = createAnimations({
   bouncy: {
@@ -25,9 +25,36 @@ const animations = createAnimations({
   },
 });
 
-const headingFont = createInterFont();
+const interFont = createInterFont();
 
-const bodyFont = createInterFont();
+const RalewayFont = createFont({
+  family: 'Raleway',
+  size: interFont.size,
+  weight: {
+    2: '100',
+    3: '200',
+    4: '300',
+    5: '400',
+    6: '500',
+    7: '600',
+    8: '700',
+    9: '800',
+    10: '900',
+  },
+  letterSpacing: interFont.letterSpacing,
+  lineHeight: interFont.lineHeight,
+  face: {
+    100: { normal: 'RalewayThin' },
+    200: { normal: 'RalewayExtraLight' },
+    300: { normal: 'RalewayLight' },
+    400: { normal: 'RalewayRegular' },
+    500: { normal: 'RalewayMedium' },
+    600: { normal: 'RalewaySemiBold' },
+    700: { normal: 'RalewayBold' },
+    800: { normal: 'RalewayExtraBold' },
+    900: { normal: 'RalewayBlack' },
+  },
+});
 
 export const Container = styled(YStack, {
   flex: 1,
@@ -89,8 +116,8 @@ const config = createTamagui({
   themeClassNameOnRoot: true,
   shorthands,
   fonts: {
-    body: bodyFont,
-    heading: headingFont,
+    body: RalewayFont,
+    heading: RalewayFont,
   },
   themes,
   tokens,
