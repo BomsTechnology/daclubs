@@ -58,7 +58,8 @@ const RalewayFont = createFont({
 
 export const Container = styled(YStack, {
   flex: 1,
-  padding: 24,
+  padding: 20,
+  backgroundColor: '#F8F9FA',
 });
 
 export const Main = styled(YStack, {

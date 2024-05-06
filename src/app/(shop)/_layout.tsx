@@ -1,21 +1,26 @@
 import { Ionicons } from '@expo/vector-icons';
-import { DrawerToggleButton } from '@react-navigation/drawer';
 import { Tabs } from 'expo-router';
 
-const HomeLayout = () => {
+const ShopLayout = () => {
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: '#000',
         tabBarShowLabel: false,
-        headerLeft: () => <DrawerToggleButton tintColor="#000" />,
+        headerShown: false,
+        headerStyle: {
+          backgroundColor: '#F8F9FA',
+          borderBottomWidth: 0,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
       }}>
       <Tabs.Screen
         name="(home)"
         options={{
           title: 'home',
           tabBarIcon: ({ focused, color }) => (
-            <Ionicons name={focused ? 'home' : 'home-outline'} size={24} color={color} />
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />
           ),
         }}
       />
@@ -24,7 +29,7 @@ const HomeLayout = () => {
         options={{
           title: 'cart',
           tabBarIcon: ({ focused, color }) => (
-            <Ionicons name={focused ? 'cart' : 'cart-outline'} size={28} color={color} />
+            <Ionicons name={focused ? 'cart' : 'cart-outline'} size={24} color={color} />
           ),
         }}
       />
@@ -33,7 +38,7 @@ const HomeLayout = () => {
         options={{
           title: 'favorite',
           tabBarIcon: ({ focused, color }) => (
-            <Ionicons name={focused ? 'heart' : 'heart-outline'} size={28} color={color} />
+            <Ionicons name={focused ? 'heart' : 'heart-outline'} size={24} color={color} />
           ),
         }}
       />
@@ -42,7 +47,7 @@ const HomeLayout = () => {
         options={{
           title: 'Quizz',
           tabBarIcon: ({ focused, color }) => (
-            <Ionicons name={focused ? 'person' : 'person-outline'} size={28} color={color} />
+            <Ionicons name={focused ? 'person' : 'person-outline'} size={24} color={color} />
           ),
         }}
       />
@@ -50,4 +55,4 @@ const HomeLayout = () => {
   );
 };
 
-export default HomeLayout;
+export default ShopLayout;
