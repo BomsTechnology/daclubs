@@ -5,8 +5,9 @@ const Layout = () => {
     <Stack
       screenOptions={{
         headerBackTitleVisible: false,
-        headerShown: false
-      }}/>
+        headerShown: false,
+      }}
+    />
   );
 };
 

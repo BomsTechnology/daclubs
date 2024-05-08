@@ -34,7 +34,7 @@ const ShopLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="favorite/index"
+        name="favorite"
         options={{
           title: 'favorite',
           tabBarIcon: ({ focused, color }) => (
@@ -43,7 +43,7 @@ const ShopLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="account/index"
+        name="account"
         options={{
           title: 'Quizz',
           tabBarIcon: ({ focused, color }) => (

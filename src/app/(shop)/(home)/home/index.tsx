@@ -1,5 +1,5 @@
 import { FlashList } from '@shopify/flash-list';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { H4, SizableText, XStack } from 'tamagui';
 

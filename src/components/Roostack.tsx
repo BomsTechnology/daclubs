@@ -17,18 +17,6 @@ const Roostack = () => {
             title: 'Onboarding',
           }}
         />
-        <Stack.Screen
-          name="sign-in"
-          options={{
-            title: 'Sign In',
-          }}
-        />
-        <Stack.Screen
-          name="otp"
-          options={{
-            title: 'Otp',
-          }}
-        />
         <Stack.Screen name="(shop)" />
       </Stack>
     </Theme>

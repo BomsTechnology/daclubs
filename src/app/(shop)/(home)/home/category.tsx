@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { View } from 'react-native';
 
@@ -18,14 +17,10 @@ const DATA = [
   },
 ];
 
-const Page = () => {
+const CategoryPage = () => {
   return (
     <>
-      <CustomHeader
-        title="Favoris"
-        description="(2 Products)"
-        icon={<Ionicons name="heart" size={20} color="black" />}
-      />
+      <CustomHeader title="Nike" description="270 Products" />
       <Container>
         <FlashList
           data={DATA}
@@ -40,4 +35,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default CategoryPage;

@@ -1,10 +1,12 @@
-import { View, Text } from 'react-native';
+import { Text } from 'react-native';
+
+import { Container } from '~/tamagui.config';
 
 const Page = () => {
   return (
-    <View>
-      <Text>Page</Text>
-    </View>
+    <Container>
+      <Text>Boutique Physique</Text>
+    </Container>
   );
 };
 

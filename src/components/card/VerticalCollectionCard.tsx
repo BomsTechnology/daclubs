@@ -2,9 +2,11 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
-const HorizontalCollectionCard = () => {
+const VerticalCollectionCard = ({ peer }: { peer: boolean }) => {
   return (
-    <TouchableOpacity style={styles.container} onPress={() => router.push('/home/category')}>
+    <TouchableOpacity
+      style={[styles.container, peer ? styles.ml : styles.mr]}
+      onPress={() => router.push('/marks/category')}>
       <FastImage
         source={{
           uri: 'https://daclub-snkrs.com/cdn/shop/collections/003bfa846db6ce8a081d3e0ccacab826.jpg?v=1678444218&width=1080',
@@ -24,15 +26,13 @@ const HorizontalCollectionCard = () => {
 
 const styles = StyleSheet.create({
   container: {
-    width: 130,
-    height: 140,
+    flex: 1,
     position: 'relative',
     overflow: 'hidden',
     borderRadius: 8,
   },
   image: {
-    width: '100%',
-    height: '100%',
+    aspectRatio: 3/4,
     borderRadius: 8,
   },
   text: {
@@ -54,6 +54,12 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
+  ml: {
+    marginLeft: 5,
+  },
+  mr: {
+    marginRight: 5,
+  },
 });
 
-export default HorizontalCollectionCard;
+export default VerticalCollectionCard;

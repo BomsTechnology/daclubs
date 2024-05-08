@@ -1,15 +1,39 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { DrawerToggleButton } from '@react-navigation/drawer';
+import {
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerToggleButton,
+} from '@react-navigation/drawer';
+import { useSegments } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
+import { useMemo } from 'react';
+import { Image } from 'react-native';
 import { Button, SizableText, XStack, YStack } from 'tamagui';
 const AppLayout = () => {
+  const segments = useSegments();
+  const nestedCategoryPageOpened = useMemo(() => {
+    return segments.length > 3;
+  }, [segments]);
   return (
     <Drawer
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         headerShown: true,
         drawerActiveBackgroundColor: '#fff',
         drawerActiveTintColor: '#000',
         drawerInactiveTintColor: '#000',
+        drawerLabelStyle: {
+          marginLeft: -20,
+          fontSize: 15,
+          fontFamily: 'RalewayRegular',
+        },
+        drawerItemStyle: {
+          borderBottomWidth: 1,
+          borderBottomColor: '#EBEDF3',
+          height: 50,
+          justifyContent: 'center',
+        },
         headerLeft: () => (
           <Button
             bg="#fff"
@@ -63,34 +87,49 @@ const AppLayout = () => {
       <Drawer.Screen
         name="home"
         options={{
-          drawerLabel: 'Home',
-          drawerIcon: ({ color, size }) => <Ionicons name="home" color={color} size={size} />,
+          drawerLabel: 'Accueil',
+          headerShown: !nestedCategoryPageOpened,
+          drawerIcon: ({ color, size }) => <Ionicons name="home-outline" color={color} size={16} />,
         }}
       />
       <Drawer.Screen
-        name="sneakers/index"
+        name="sneakers"
         options={{
-          title: 'Profile',
+          title: 'Sneakers',
           drawerIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="shoe-sneaker" color={color} size={size + 4} />
+            <MaterialCommunityIcons name="shoe-sneaker" color={color} size={20} />
           ),
         }}
       />
       <Drawer.Screen
-        name="marks/index"
+        name="marks"
         options={{
-          title: 'Post',
-          drawerIcon: ({ color, size }) => <Ionicons name="star" color={color} size={size} />,
+          title: 'Nos Marques',
+          headerShown: !nestedCategoryPageOpened,
+          drawerIcon: ({ color, size }) => <Ionicons name="star-outline" color={color} size={18} />,
         }}
       />
       <Drawer.Screen
         name="store/index"
         options={{
-          title: 'setting',
-          drawerIcon: ({ color, size }) => <Ionicons name="storefront" color={color} size={size} />,
+          title: 'Magasin Physique',
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="storefront-outline" color={color} size={16} />
+          ),
         }}
       />
     </Drawer>
+  );
+};
+
+const CustomDrawerContent = (props: DrawerContentComponentProps) => {
+  return (
+    <DrawerContentScrollView {...props} contentContainerStyle={{ backgroundColor: '#fff' }}>
+      <XStack pb={20} px={20} pt={10} borderBottomWidth={1} borderBottomColor="#EBEDF3">
+        <Image source={require('~/assets/images/logo.png')} />
+      </XStack>
+      <DrawerItemList {...props} />
+    </DrawerContentScrollView>
   );
 };
 

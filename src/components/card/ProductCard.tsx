@@ -1,14 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
 const ProductCard = ({ peer }: { peer: boolean }) => {
   return (
-    <View style={[styles.container, peer ? styles.ml : styles.mr]}>
+    <View  style={[styles.container, peer ? styles.ml : styles.mr]}>
       <Pressable style={styles.heartBtn}>
         <Ionicons name="heart-outline" size={24} color="black" />
       </Pressable>
-      <Pressable>
+      <Pressable onPress={() => router.push('/(shop)/(home)/home/detail')}>
         <View style={styles.imageContainer}>
           <FastImage
             source={{
