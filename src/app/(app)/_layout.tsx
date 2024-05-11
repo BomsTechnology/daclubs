@@ -13,12 +13,22 @@ import { Button, SizableText, XStack, YStack } from 'tamagui';
 const AppLayout = () => {
   const segments = useSegments();
   const nestedCategoryPageOpened = useMemo(() => {
-    return segments.length > 3;
+    return (
+      segments.length > 3 ||
+      (segments.length === 3 && segments[2] === 'category') ||
+      (segments.length === 3 && segments[1] === '(shop)' && segments[2] !== 'home')
+    );
   }, [segments]);
+
+  const nestedDrawerOpened = useMemo(() => {
+    return segments.length > 3 || (segments.length === 3 && segments[2] === 'category');
+  }, [segments]);
+
   return (
     <Drawer
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
+        swipeEnabled: !nestedDrawerOpened,
         headerShown: true,
         drawerActiveBackgroundColor: '#fff',
         drawerActiveTintColor: '#000',
@@ -85,7 +95,7 @@ const AppLayout = () => {
         ),
       }}>
       <Drawer.Screen
-        name="home"
+        name="(shop)"
         options={{
           drawerLabel: 'Accueil',
           headerShown: !nestedCategoryPageOpened,
@@ -113,6 +123,7 @@ const AppLayout = () => {
         name="store/index"
         options={{
           title: 'Magasin Physique',
+          headerShown: !nestedCategoryPageOpened,
           drawerIcon: ({ color, size }) => (
             <Ionicons name="storefront-outline" color={color} size={16} />
           ),

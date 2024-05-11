@@ -16,7 +16,7 @@ const ShopLayout = () => {
         },
       }}>
       <Tabs.Screen
-        name="(home)"
+        name="home"
         options={{
           title: 'home',
           tabBarIcon: ({ focused, color }) => (
@@ -56,3 +56,4 @@ const ShopLayout = () => {
 };
 
 export default ShopLayout;
+

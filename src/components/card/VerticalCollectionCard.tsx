@@ -8,7 +8,14 @@ const VerticalCollectionCard = ({ peer, ...collection }: CollectionProps & { pee
   return (
     <TouchableOpacity
       style={[styles.container, peer ? styles.ml : styles.mr]}
-      onPress={() => router.push('/marks/category')}>
+      onPress={() =>
+        router.push({
+          pathname: `/marks/category`,
+          params: {
+            id: collection.node.id,
+          },
+        })
+      }>
       {collection.node.image && (
         <FastImage
           source={{

@@ -1,7 +1,52 @@
 import ProductProps from '../types/ProductProps';
 import client from '../utils/shopify';
 
-export const getProducts = async (): Promise<ProductProps[]> => {
+export const getProducts = async ({ pageParam = '' }): Promise<ProductProps[]> => {
+  const productsQuery = `
+      query getProducts {
+              products(first: 50${pageParam ? `, after: "${pageParam}"` : ''}) {
+                edges {
+                  cursor
+                  node {
+                    featuredImage {
+                      altText
+                      height
+                      id
+                      url(transform: {maxHeight: 500, maxWidth: 500})
+                      width
+                    }
+                    availableForSale
+                    handle
+                    id
+                    productType
+                    publishedAt
+                    priceRange {
+                      maxVariantPrice {
+                        amount
+                        currencyCode
+                      }
+                      minVariantPrice {
+                        amount
+                        currencyCode
+                      }
+                    }
+                    title
+                    totalInventory
+                    vendor
+                  }
+                }
+                pageInfo {
+                    hasNextPage
+                    hasPreviousPage
+                    startCursor
+                }
+              }
+            }`;
+  const { data, errors } = await client.request(productsQuery);
+  if (errors) throw errors;
+  return data.products;
+}
+export const getProduct = async (): Promise<ProductProps> => {
   ` products(first: 2) {
     edges {
       cursor

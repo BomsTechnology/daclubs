@@ -38,7 +38,7 @@ export default function Page() {
     if (pageRef.current && currentPage < items.length - 1) {
       pageRef.current.setPage(currentPage + 1);
     } else if (currentPage === items.length - 1) {
-      router.replace('/(shop)/(home)/home/');
+      router.replace('/(app)/(shop)/home/');
     }
   };
   return (

@@ -73,7 +73,7 @@ export const getCollections = async (): Promise<CollectionProps[]> => {
 export const getProductsInCollectionByHandle = async (
   handle: string
 ): Promise<CollectionWithProductsProps> => {
-  const productsInCollection = `
+  const productsInCollectionQuery = `
     query getProductsInCollectionByHandle($handle: String) {
         collection(handle: $handle) {
             handle
@@ -117,7 +117,7 @@ export const getProductsInCollectionByHandle = async (
             }
           }
     }`;
-  const { data, errors } = await client.request(productsInCollection, {
+  const { data, errors } = await client.request(productsInCollectionQuery, {
     variables: {
       handle,
     },
@@ -133,7 +133,7 @@ export const getProductsInCollectionById = async ({
   id: string;
   pageParam?: string;
 }): Promise<CollectionWithProductsProps> => {
-  const productsInCollection = `
+  const productsInCollectionQuery = `
       query getProductsInCollectionByHandle($id: ID!) {
           collection(id: $id) {
               handle
@@ -178,7 +178,7 @@ export const getProductsInCollectionById = async ({
               }
             }
       }`;
-  const { data, errors } = await client.request(productsInCollection, {
+  const { data, errors } = await client.request(productsInCollectionQuery, {
     variables: {
       id,
     },

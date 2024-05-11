@@ -17,7 +17,7 @@ const Roostack = () => {
             title: 'Onboarding',
           }}
         />
-        <Stack.Screen name="(shop)" />
+        <Stack.Screen name="(app)" />
       </Stack>
     </Theme>
   );

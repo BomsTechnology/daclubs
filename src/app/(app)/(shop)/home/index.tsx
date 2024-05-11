@@ -60,11 +60,7 @@ const Page = () => {
           horizontal
           showsHorizontalScrollIndicator={false}>
           {collections?.map((collection) => (
-            <HorizontalCollectionCard
-              key={collection.node.id}
-              collection={collection}
-              from="home"
-            />
+            <HorizontalCollectionCard key={collection.node.id} collection={collection} />
           ))}
         </ScrollView>
       </Animated.View>
