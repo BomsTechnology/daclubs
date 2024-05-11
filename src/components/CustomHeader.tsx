@@ -47,12 +47,14 @@ const CustomHeader = ({
           </>
         )}
         <YStack>
-          <SizableText fontWeight="700" fontSize={18}>
+          <SizableText fontWeight="700" fontSize={18} numberOfLines={1}>
             {title}
           </SizableText>
-          { description && <SizableText fontWeight="500" fontSize={14}>
-            {description}
-          </SizableText>}
+          {description && (
+            <SizableText fontWeight="500" fontSize={14} numberOfLines={1}>
+              {description}
+            </SizableText>
+          )}
         </YStack>
       </XStack>
     </YStack>

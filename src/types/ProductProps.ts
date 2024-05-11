@@ -38,7 +38,7 @@ export interface VariantProps {
   unitPrice: PriceProps;
 }
 
-export default interface ProductProps {
+export interface MainProductProps {
   totalInventory?: number;
   trackingParameters?: string;
   availableForSale: boolean;
@@ -69,3 +69,5 @@ export default interface ProductProps {
     minVariantPrice: PriceProps;
   };
 }
+
+export default interface ProductProps {}

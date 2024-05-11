@@ -1,4 +1,4 @@
-import ProductProps, { ImageProps, PriceProps } from './ProductProps';
+import { ImageProps, MainProductProps } from './ProductProps';
 
 export interface MainCollectionProps {
   description: string;
@@ -24,7 +24,12 @@ export interface CollectionWithProductsProps {
   products: {
     edges: {
       cursor: string;
-      node: ProductProps;
+      node: MainProductProps;
     }[];
+    pageInfo: {
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+      startCursor: string;
+    };
   };
 }

@@ -1,38 +1,10 @@
-import { FlashList } from '@shopify/flash-list';
-import { View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 
-import CustomHeader from '~/src/components/CustomHeader';
-import ProductCard from '~/src/components/card/ProductCard';
-import { Container } from '~/tamagui.config';
-
-const DATA = [
-  {
-    title: 'First Item',
-  },
-  {
-    title: 'Second Item',
-  },
-  {
-    title: 'Second Item',
-  },
-];
+import CategoryScreen from '~/src/components/CategoryScreen';
 
 const CategoryPage = () => {
-  return (
-    <>
-      <CustomHeader title="Nike" description="270 Products" />
-      <Container>
-        <FlashList
-          data={DATA}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) => <ProductCard peer={(index + 1) % 2 === 0} />}
-          estimatedItemSize={100}
-          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-        />
-      </Container>
-    </>
-  );
+  const { id } = useLocalSearchParams();
+  return <CategoryScreen id={id as string} />;
 };
 
 export default CategoryPage;

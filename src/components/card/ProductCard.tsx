@@ -3,9 +3,9 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
-import ProductProps from '~/src/types/ProductProps';
+import { MainProductProps } from '~/src/types/ProductProps';
 
-const ProductCard = ({ peer, ...product }: ProductProps & { peer: boolean }) => {
+const ProductCard = ({ peer, ...product }: MainProductProps & { peer: boolean }) => {
   return (
     <View style={[styles.container, peer ? styles.ml : styles.mr]}>
       <Pressable style={styles.heartBtn}>

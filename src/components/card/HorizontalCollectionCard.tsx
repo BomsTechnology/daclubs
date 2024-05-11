@@ -4,9 +4,24 @@ import FastImage from 'react-native-fast-image';
 
 import CollectionProps from '~/src/types/CollectionProps';
 
-const HorizontalCollectionCard = ({ collection }: { collection: CollectionProps }) => {
+const HorizontalCollectionCard = ({
+  collection,
+  from,
+}: {
+  collection: CollectionProps;
+  from?: string;
+}) => {
   return (
-    <TouchableOpacity style={styles.container} onPress={() => router.push('/home/category')}>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() =>
+        router.push({
+          pathname: `/${from}/category`,
+          params: {
+            id: collection.node.id,
+          },
+        })
+      }>
       {collection.node.image && (
         <FastImage
           source={{
