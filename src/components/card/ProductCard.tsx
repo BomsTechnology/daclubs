@@ -3,32 +3,36 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
-const ProductCard = ({ peer }: { peer: boolean }) => {
+import ProductProps from '~/src/types/ProductProps';
+
+const ProductCard = ({ peer, ...product }: ProductProps & { peer: boolean }) => {
   return (
-    <View  style={[styles.container, peer ? styles.ml : styles.mr]}>
+    <View style={[styles.container, peer ? styles.ml : styles.mr]}>
       <Pressable style={styles.heartBtn}>
         <Ionicons name="heart-outline" size={24} color="black" />
       </Pressable>
       <Pressable onPress={() => router.push('/(shop)/(home)/home/detail')}>
         <View style={styles.imageContainer}>
-          <FastImage
-            source={{
-              uri: 'https://daclub-snkrs.com/cdn/shop/files/D97943EB-92C7-4B23-BA9F-90508444F49D.jpg?v=1710327557&width=922',
-              priority: FastImage.priority.normal,
-            }}
-            resizeMode={FastImage.resizeMode.contain}
-            style={styles.image}
-          />
+          {product.featuredImage && (
+            <FastImage
+              source={{
+                uri: product.featuredImage.url,
+                priority: FastImage.priority.normal,
+              }}
+              resizeMode={FastImage.resizeMode.contain}
+              style={styles.image}
+            />
+          )}
         </View>
         <View style={styles.info}>
           <Text style={styles.brand} numberOfLines={1}>
-            AIR JORDAN
+            {product.vendor}
           </Text>
           <Text style={styles.name} numberOfLines={1}>
-            AIR JORDAN 1 RETRO LOW OG TROPHY ROOM
+            {product.title}
           </Text>
           <Text style={styles.price} numberOfLines={1}>
-            € 100
+            {`${product.priceRange.minVariantPrice.amount} ${product.priceRange.minVariantPrice.currencyCode}`}
           </Text>
         </View>
       </Pressable>

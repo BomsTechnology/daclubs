@@ -2,22 +2,26 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
-const VerticalCollectionCard = ({ peer }: { peer: boolean }) => {
+import CollectionProps from '~/src/types/CollectionProps';
+
+const VerticalCollectionCard = ({ peer, ...collection }: CollectionProps & { peer: boolean }) => {
   return (
     <TouchableOpacity
       style={[styles.container, peer ? styles.ml : styles.mr]}
       onPress={() => router.push('/marks/category')}>
-      <FastImage
-        source={{
-          uri: 'https://daclub-snkrs.com/cdn/shop/collections/003bfa846db6ce8a081d3e0ccacab826.jpg?v=1678444218&width=1080',
-          priority: FastImage.priority.normal,
-        }}
-        resizeMode={FastImage.resizeMode.cover}
-        style={styles.image}
-      />
+      {collection.node.image && (
+        <FastImage
+          source={{
+            uri: collection.node.image.url,
+            priority: FastImage.priority.normal,
+          }}
+          resizeMode={FastImage.resizeMode.cover}
+          style={styles.image}
+        />
+      )}
       <View style={styles.overlay}>
         <Text style={styles.text} numberOfLines={2}>
-          Jordan 1
+          {collection.node.title}
         </Text>
       </View>
     </TouchableOpacity>
@@ -30,10 +34,12 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     borderRadius: 8,
+    aspectRatio: 3 / 4,
   },
   image: {
-    aspectRatio: 3/4,
+    height: '100%',
     borderRadius: 8,
+    width: '100%',
   },
   text: {
     textAlign: 'center',

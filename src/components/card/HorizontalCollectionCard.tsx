@@ -2,20 +2,24 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
-const HorizontalCollectionCard = () => {
+import CollectionProps from '~/src/types/CollectionProps';
+
+const HorizontalCollectionCard = ({ collection }: { collection: CollectionProps }) => {
   return (
     <TouchableOpacity style={styles.container} onPress={() => router.push('/home/category')}>
-      <FastImage
-        source={{
-          uri: 'https://daclub-snkrs.com/cdn/shop/collections/003bfa846db6ce8a081d3e0ccacab826.jpg?v=1678444218&width=1080',
-          priority: FastImage.priority.normal,
-        }}
-        resizeMode={FastImage.resizeMode.cover}
-        style={styles.image}
-      />
+      {collection.node.image && (
+        <FastImage
+          source={{
+            uri: collection.node.image.url,
+            priority: FastImage.priority.normal,
+          }}
+          resizeMode={FastImage.resizeMode.cover}
+          style={styles.image}
+        />
+      )}
       <View style={styles.overlay}>
         <Text style={styles.text} numberOfLines={2}>
-          Jordan 1
+          {collection.node.title}
         </Text>
       </View>
     </TouchableOpacity>
