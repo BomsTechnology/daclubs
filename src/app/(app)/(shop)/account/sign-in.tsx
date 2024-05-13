@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { SizableText, YStack, Button, Input, ScrollView } from 'tamagui';
 
-import CustomHeader from '~/src/components/CustomHeader';
+import CustomHeader from '~/src/components/header/CustomHeader';
 import { Container } from '~/tamagui.config';
 
 export default function Page() {

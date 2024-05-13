@@ -21,8 +21,10 @@ const ErrorScreen = ({
         resizeMode="contain"
         style={{ width: '100%', height: 200 }}
       />
-      <SizableText size="$10">Erreur</SizableText>
-      <SizableText>{message}</SizableText>
+      <SizableText size="$10" textAlign="center">
+        Erreur
+      </SizableText>
+      <SizableText textAlign="center">{message}</SizableText>
       {button && button === true && (
         <Button backgroundColor="#000" color="#fff" onPress={onPress}>
           {btnText}

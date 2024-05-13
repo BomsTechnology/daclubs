@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { FlatList } from 'react-native';
 import { Button, SizableText, XStack, YStack } from 'tamagui';
 
-import CustomHeader from '~/src/components/CustomHeader';
+import CustomHeader from '~/src/components/header/CustomHeader';
 import { Container } from '~/tamagui.config';
 
 const ITEM = [

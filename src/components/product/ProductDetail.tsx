@@ -1,110 +1,215 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRef, useState } from 'react';
-import { View } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { useCallback, useRef, useState } from 'react';
+import { ScrollView, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import PagerView from 'react-native-pager-view';
-import { Accordion, Button, H4, Paragraph, ScrollView, SizableText, XStack, YStack } from 'tamagui';
+import { Accordion, Button, Paragraph, SizableText, XStack, YStack } from 'tamagui';
 
 import ProductDot from './ProductDot';
-import CustomHeader from '../CustomHeader';
+import ErrorScreen from '../ErrorScreen';
+import LoadingScreen from '../LoadingScreen';
+import CustomHeader from '../header/CustomHeader';
 
-const ProductDetail = () => {
+import { getProduct } from '~/src/api/product';
+import useShowNotification from '~/src/hooks/useShowNotification';
+import { VariantProps } from '~/src/types/ProductProps';
+
+const SizeTypes = ['EU', 'US'];
+
+type SizeProps = {
+  value: string;
+  eu: string;
+  us: string;
+};
+
+const ProductDetail = ({ id }: { id: string }) => {
+  const { showMessage } = useShowNotification();
+  const [selectedVariant, setSelectedVariant] = useState<VariantProps | null>(null);
+  const [selectedSizeType, setSelectedSizeType] = useState('EU');
+  const [listSizes, setListSizes] = useState<SizeProps[]>([]);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedDeliveryMode, setSelectedDeliveryMode] = useState('Standard');
   const [currentPage, setCurrentPage] = useState(0);
   const pageRef = useRef<PagerView>(null);
 
-  const SizeItem = ({ size }: { size: string }) => {
+  const { data, isPending, error, refetch } = useQuery({
+    queryKey: ['product', id],
+    queryFn: () =>
+      getProduct(id).then((res) => {
+        if (res.options && res.options[0].name === 'Taille') {
+          res.options[0].values.forEach((size: string) => {
+            const sizes = size.split('-');
+            setListSizes((prev) => [
+              ...prev,
+              {
+                value: size,
+                eu: sizes[0].replace('EU', ''),
+                us: sizes[1].replace('US', ''),
+              },
+            ]);
+          });
+        }
+        return res;
+      }),
+  });
+
+  const SizeItem = ({ ...size }: SizeProps) => {
     return (
-      <Button bg="#ECEFF1" color="#000" w={100}>
-        {size}
+      <Button
+        bg={selectedSize === size.value ? '#000' : '#ECEFF1'}
+        color={selectedSize === size.value ? '#fff' : '#000'}
+        w={95}
+        onPress={() => setSelectedSize(size.value)}>
+        {selectedSizeType === 'US' ? size.us : size.eu}
       </Button>
     );
+  };
+
+  const SizeTypeItem = ({ type }: { type: string }) => {
+    return (
+      <Button
+        onPress={() => setSelectedSizeType(type)}
+        borderWidth={selectedSizeType === type ? 0 : 1}
+        borderColor="#000"
+        bg={selectedSizeType === type ? '#000' : '#fff'}
+        color={selectedSizeType === type ? '#fff' : '#000'}>
+        {`${type} ${selectedSizeType === type ? '✓' : ''}`}
+      </Button>
+    );
+  };
+
+  const DeliveryItem = ({ text }: { text: string }) => {
+    return (
+      <Button
+        onPress={() => setSelectedDeliveryMode(text)}
+        bg={selectedDeliveryMode === text ? '#000' : '#ECEFF1'}
+        flex={1}
+        flexDirection="column"
+        gap={0}
+        h={100}>
+        <SizableText
+          lineHeight={14}
+          fontWeight="700"
+          color={selectedDeliveryMode === text ? '#fff' : '#000'}>
+          Livraison {text}
+        </SizableText>
+        <SizableText
+          fontSize={12}
+          lineHeight={14}
+          color={selectedDeliveryMode === text ? '#fff' : '#000'}>
+          {text === 'Express' ? '(48h)' : '(5 à 10 jours ouvrés)'}
+        </SizableText>
+      </Button>
+    );
+  };
+
+  const addToCart = async () => {
+    console.log(selectedSize, selectedDeliveryMode);
+  };
+
+  if (isPending) return <LoadingScreen />;
+  if (error)
+    return (
+      <ErrorScreen
+        button
+        onPress={() => refetch()}
+        message={error?.message || 'Une erreur est survenue'}
+      />
+    );
+
+  const findVariant = () => {
+    if (
+      data.options &&
+      data.options[0] &&
+      data.options[0].name === 'Taille' &&
+      data.options[1] &&
+      data.options[1].name === 'Livraison'
+    ) {
+      const variant = data.variants?.edges.filter((variant) => {
+        return (
+          variant.node.selectedOptions[0].value === selectedSize &&
+          variant.node.selectedOptions[1].value === selectedDeliveryMode
+        );
+      })[0].node;
+    } else if (data.options && data.options[0] && data.options[0].name === 'Taille') {
+      const variant = data.variants?.edges.filter((variant) => {
+        return variant.node.selectedOptions[0].value === selectedSize;
+      })[0].node;
+      if (variant) {
+        setSelectedVariant(variant);
+      } else {
+        showMessage('Désolé vous ne pouvez pas acheter cette variante pour le moment :(');
+      }
+    } else {
+      showMessage('Désolé vous ne pouvez pas acheter ce produit pour le moment :(');
+    }
   };
 
   return (
     <>
       <CustomHeader title="Détails du produit" />
-      <ScrollView flex={1} bg="#ECEFF1">
-        <View style={{ height: 30, backgroundColor: 'white' }} />
-        <View>
-          <PagerView
-            ref={pageRef}
-            overScrollMode="auto"
-            initialPage={0}
-            onPageScroll={(e) => setCurrentPage(e.nativeEvent.position)}
-            style={{ flex: 1, backgroundColor: 'white', height: 250 }}>
-            <View style={{ width: '100%', height: '100%' }} key={1}>
+      <ScrollView style={{ flex: 1, height: '100%' }} showsHorizontalScrollIndicator={false}>
+        <PagerView
+          ref={pageRef}
+          overScrollMode="auto"
+          initialPage={0}
+          onPageScroll={(e) => setCurrentPage(e.nativeEvent.position)}
+          style={{ backgroundColor: 'white', aspectRatio: 3 / 2 }}>
+          {data.images?.edges.map((image, index) => (
+            <View style={{ width: '100%', height: '100%' }} key={index + 1}>
               <FastImage
                 source={{
-                  uri: 'https://daclub-snkrs.com/cdn/shop/files/new-balance-1906r-protection-pack-black-4_2000x_602c1cd6-e4b1-4397-a3a3-ee6c190a64d4.webp?v=1684882391&width=700',
+                  uri: image.node.url,
                   priority: FastImage.priority.normal,
                 }}
                 resizeMode={FastImage.resizeMode.contain}
                 style={{ width: '100%', height: '100%' }}
               />
             </View>
-            <View style={{ width: '100%', height: '100%' }} key={2}>
-              <FastImage
-                source={{
-                  uri: 'https://daclub-snkrs.com/cdn/shop/files/new-balance-1906r-protection-pack-black-3_2000x_a2368c41-c620-4775-a806-252097c35dd8.webp?v=1684882391&width=700',
-                  priority: FastImage.priority.normal,
-                }}
-                resizeMode={FastImage.resizeMode.contain}
-                style={{ width: '100%', height: '100%' }}
-              />
-            </View>
-            <View style={{ width: '100%', height: '100%' }} key={3}>
-              <FastImage
-                source={{
-                  uri: 'https://daclub-snkrs.com/cdn/shop/files/new-balance-1906r-protection-pack-black-1_2000x_fa4004f7-42c0-4d1a-a1c2-ae173c721541.webp?v=1684882391&width=700',
-                  priority: FastImage.priority.normal,
-                }}
-                resizeMode={FastImage.resizeMode.contain}
-                style={{ width: '100%', height: '100%' }}
-              />
-            </View>
-            <View style={{ width: '100%', height: '100%' }} key={4}>
-              <FastImage
-                source={{
-                  uri: 'https://daclub-snkrs.com/cdn/shop/files/new-balance-1906r-protection-pack-black-2_2000x_0c9a286c-9678-4472-bf30-a8fce0eed66f.webp?v=1684882391&width=700',
-                  priority: FastImage.priority.normal,
-                }}
-                resizeMode={FastImage.resizeMode.contain}
-                style={{ width: '100%', height: '100%' }}
-              />
-            </View>
-          </PagerView>
-          <ProductDot nbItems={4} activeItem={currentPage} />
-        </View>
+          ))}
+        </PagerView>
+        <ProductDot nbItems={data.images?.edges.length || 0} activeItem={currentPage} />
+
         <YStack py={10} px={20} bg="#fff" my={5}>
           <SizableText fontWeight="700" textTransform="uppercase">
-            NEW BALANCE
+            {data.vendor}
           </SizableText>
           <SizableText textTransform="uppercase" fontSize={18} mt={5}>
-            1906R Protection Pack black
+            {data.title}
           </SizableText>
           <SizableText textTransform="uppercase" fontSize={25} fontWeight="800" mt={5}>
-            € 200
+            {`${data.priceRange.minVariantPrice.amount} ${data.priceRange.minVariantPrice.currencyCode}`}
           </SizableText>
         </YStack>
-        <YStack bg="white" px={20} py={10}>
-          <XStack justifyContent="space-between" alignItems="center">
-            <SizableText>Selectionnez votre taille : </SizableText>
-            <XStack gap={20}>
-              <H4 textDecorationLine="underline">EU</H4>
-              <H4>US</H4>
+        {data.options && data.options[0].name === 'Taille' && (
+          <YStack bg="white" px={20} py={10}>
+            <XStack justifyContent="space-between" alignItems="center" mb={20}>
+              <SizableText>Selectionnez votre taille : </SizableText>
+              <XStack gap={20}>
+                {SizeTypes.map((type) => (
+                  <SizeTypeItem type={type} key={type} />
+                ))}
+              </XStack>
             </XStack>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 10 }}>
+              {listSizes.map((size, index) => (
+                <SizeItem {...size} key={`${size.value}-${index}`} />
+              ))}
+            </ScrollView>
+          </YStack>
+        )}
+
+        <YStack bg="white" px={20} py={10} mt={5}>
+          <SizableText mb={20}>Selectionnez le mode de livraison : </SizableText>
+          <XStack gap={20}>
+            <DeliveryItem text="Standard" />
+            <DeliveryItem text="Express" />
           </XStack>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            mt={15}
-            contentContainerStyle={{ gap: 10 }}>
-            <SizeItem size="45" />
-            <SizeItem size="46" />
-            <SizeItem size="47" />
-            <SizeItem size="48" />
-            <SizeItem size="49" />
-          </ScrollView>
         </YStack>
         <YStack my={5} bg="#fff" px={20} py={10}>
           <Accordion overflow="hidden" width="100%" type="multiple">
@@ -120,21 +225,7 @@ const ProductDetail = () => {
                 exitStyle={{ opacity: 0 }}
                 enterStyle={{ opacity: 0.5 }}
                 animation="bouncy">
-                <Paragraph>
-                  Avec sa nouvelle silhouette, la 1906D, New Balance présente un coloris inédit de
-                  son Protection Pack, caractérisé par son style déstructuré et original. La New
-                  Balance 1906R du Protection Pack Black arbore une empeigne en mesh noir,
-                  agrémentée de superpositions en suède gris et en hairy suède noir à l'aspect
-                  déchiré. Des accents noirs viennent compléter l'ensemble, se retrouvant au niveau
-                  du renfort en TPU, de la semelle et du logo "N" qui se marie harmonieusement avec
-                  les oeillets. La semelle intermédiaire N-Ergy, vieillie pour un look vintage à
-                  l'instar de la 2002R, garantit un confort exceptionnel à chaque pas. En tant que
-                  nouvelle addition au catalogue de New Balance, la 1906R se joint à la collection
-                  très appréciée du Protection Pack, offrant aux amateurs de sneakers un choix varié
-                  et une esthétique distinctive. Son style déconstructuré et ses détails travaillés
-                  en font un modèle unique qui ne manquera pas d'attirer l'attention des passionnés
-                  de chaussures.
-                </Paragraph>
+                <Paragraph>{data.description || 'Pas de description'}</Paragraph>
               </Accordion.Content>
             </Accordion.Item>
           </Accordion>
@@ -142,29 +233,30 @@ const ProductDetail = () => {
         <YStack mb={5} bg="#fff" px={20} py={10}>
           <XStack alignItems="center" gap={10}>
             <MaterialCommunityIcons name="truck-delivery-outline" size={20} color="black" />
-            <SizableText>Free delivery from 200€</SizableText>
+            <SizableText>Livraison gratuite à partir de 200€</SizableText>
           </XStack>
           <XStack alignItems="center" gap={10}>
             <Ionicons name="star-outline" size={20} color="black" />
-            <SizableText>Authentic and new products</SizableText>
+            <SizableText>Produits authentiques et neufs</SizableText>
           </XStack>
           <XStack alignItems="center" gap={10}>
             <Ionicons name="card-outline" size={20} color="black" />
-            <SizableText>Payment in 3x without fees</SizableText>
+            <SizableText>Paiement en 3x sans frais</SizableText>
           </XStack>
           <XStack alignItems="center" gap={10}>
             <Ionicons name="headset-outline" size={20} color="black" />
-            <SizableText>Payment in 3x without fees</SizableText>
+            <SizableText>Service Client disponible 24/7</SizableText>
           </XStack>
         </YStack>
       </ScrollView>
       <XStack bg="#fff" px={20} pb={20} pt={10} alignItems="center">
         <SizableText fontWeight="700" fontSize={25} flex={1}>
-          € 200
+          {`${data.priceRange.minVariantPrice.amount} ${data.priceRange.minVariantPrice.currencyCode}`}
         </SizableText>
 
         <XStack gap={10} h={40}>
           <Button
+            onPress={() => findVariant()}
             bg="#000"
             borderRadius={0}
             unstyled

@@ -1,22 +1,44 @@
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { Button, SizableText } from 'tamagui';
+import { Button, SizableText, Spinner } from 'tamagui';
 
 import { getProducts } from '~/src/api/product';
+import ErrorScreen from '~/src/components/ErrorScreen';
+import LoadingScreen from '~/src/components/LoadingScreen';
 import ProductCard from '~/src/components/card/ProductCard';
+import { MainProductProps } from '~/src/types/ProductProps';
 import { Container } from '~/tamagui.config';
 
 const Page = () => {
-  const { data } = useQuery({
-    queryKey: ['products'],
-    queryFn: () =>
-      getProducts().then((res) => {
-        return res;
-      }),
-  });
+  const [products, setProducts] = useState<MainProductProps[]>([]);
+  const { data, error, refetch, fetchNextPage, isFetching, isFetchingNextPage, status } =
+    useInfiniteQuery({
+      queryKey: ['products'],
+      queryFn: getProducts,
+      initialPageParam: '',
+      getNextPageParam: (lastPage) => lastPage.pageInfo.endCursor,
+    });
 
+  useEffect(() => {
+    if (status === 'success') {
+      data.pages[data.pages.length - 1].edges.forEach((product) => {
+        setProducts((prev) => [...prev, product.node]);
+      });
+    }
+  }, [data]);
+
+  if (status === 'pending') return <LoadingScreen />;
+  if (status === 'error')
+    return (
+      <ErrorScreen
+        button
+        onPress={() => refetch()}
+        message={error?.message || 'Une erreur est survenue'}
+      />
+    );
   return (
     <Container>
       <Button size="$2" alignSelf="flex-end" borderRadius={20} my={15}>
@@ -27,13 +49,18 @@ const Page = () => {
       </Button>
 
       <FlashList
-        data={data}
+        data={products}
         numColumns={2}
         showsVerticalScrollIndicator={false}
         renderItem={({ item, index }) => <ProductCard {...item} peer={(index + 1) % 2 === 0} />}
         estimatedItemSize={500}
         contentContainerStyle={{ paddingBottom: 50 }}
-        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+        onEndReached={() => {
+          if (!isFetching && data?.pages[data.pages.length - 1].pageInfo.hasNextPage)
+            fetchNextPage();
+        }}
+        ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
+        ListFooterComponent={() => isFetchingNextPage && <Spinner color="#000" />}
       />
     </Container>
   );

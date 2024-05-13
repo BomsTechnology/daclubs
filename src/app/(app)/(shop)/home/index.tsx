@@ -11,6 +11,7 @@ import LoadingScreen from '~/src/components/LoadingScreen';
 import HorizontalCollectionCard from '~/src/components/card/HorizontalCollectionCard';
 import ProductCard from '~/src/components/card/ProductCard';
 import SearchInput from '~/src/components/form/SearchInput';
+import HomeHeader from '~/src/components/header/HomeHeader';
 import { Container } from '~/tamagui.config';
 
 const Page = () => {
@@ -52,6 +53,8 @@ const Page = () => {
     );
 
   return (
+    <>
+    <HomeHeader />
     <Container>
       <SearchInput />
       <Animated.View style={{ marginTop: 15 }}>
@@ -87,13 +90,14 @@ const Page = () => {
           numColumns={2}
           showsVerticalScrollIndicator={false}
           renderItem={({ item, index }) => (
-            <ProductCard {...item.node} peer={(index + 1) % 2 === 0} />
+            <ProductCard {...item.node} peer={(index + 1) % 2 === 0} from="(app)/(shop)/home" />
           )}
           estimatedItemSize={50}
           ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
         />
       )}
     </Container>
+    </>
   );
 };
 

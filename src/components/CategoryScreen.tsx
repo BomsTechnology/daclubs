@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Spinner } from 'tamagui';
 
-import CustomHeader from './CustomHeader';
+import CustomHeader from './header/CustomHeader';
 import ErrorScreen from './ErrorScreen';
 import LoadingScreen from './LoadingScreen';
 import ProductCard from './card/ProductCard';
@@ -13,7 +13,7 @@ import { MainProductProps } from '../types/ProductProps';
 
 import { Container } from '~/tamagui.config';
 
-const CategoryScreen = ({ id }: { id: string }) => {
+const CategoryScreen = ({ id, from }: { id: string; from: string }) => {
   const [products, setProducts] = useState<MainProductProps[]>([]);
   const {
     data: collection,
@@ -37,7 +37,7 @@ const CategoryScreen = ({ id }: { id: string }) => {
     queryKey: ['collection_with_product_by_id', id],
     queryFn: ({ pageParam }) => getProductsInCollectionById({ id, pageParam }),
     initialPageParam: '',
-    getNextPageParam: (lastPage, allPages, lastPageParam) => lastPage.products.pageInfo.startCursor,
+    getNextPageParam: (lastPage, allPages, lastPageParam) => lastPage.products.pageInfo.endCursor,
   });
 
   useEffect(() => {
@@ -80,8 +80,8 @@ const CategoryScreen = ({ id }: { id: string }) => {
             data={products}
             numColumns={2}
             showsVerticalScrollIndicator={false}
-            renderItem={({ item, index }) => <ProductCard {...item} peer={(index + 1) % 2 === 0} />}
-            estimatedItemSize={400}
+            renderItem={({ item, index }) => <ProductCard {...item} peer={(index + 1) % 2 === 0} from={from} />}
+            estimatedItemSize={500}
             //onEndReachedThreshold={4}
             onEndReached={() => {
               if (

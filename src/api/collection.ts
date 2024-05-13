@@ -173,7 +173,7 @@ export const getProductsInCollectionById = async ({
                 pageInfo {
                     hasNextPage
                     hasPreviousPage
-                    startCursor
+                    endCursor
                 }
               }
             }

@@ -5,13 +5,25 @@ import FastImage from 'react-native-fast-image';
 
 import { MainProductProps } from '~/src/types/ProductProps';
 
-const ProductCard = ({ peer, ...product }: MainProductProps & { peer: boolean }) => {
+const ProductCard = ({
+  from,
+  peer,
+  ...product
+}: MainProductProps & { peer: boolean; from: string }) => {
   return (
     <View style={[styles.container, peer ? styles.ml : styles.mr]}>
       <Pressable style={styles.heartBtn}>
         <Ionicons name="heart-outline" size={24} color="black" />
       </Pressable>
-      <Pressable onPress={() => router.push('/(shop)/(home)/home/detail')}>
+      <Pressable
+        onPress={() =>
+          router.push({
+            pathname: `/${from}/detail`,
+            params: {
+              id: product.id,
+            },
+          })
+        }>
         <View style={styles.imageContainer}>
           {product.featuredImage && (
             <FastImage

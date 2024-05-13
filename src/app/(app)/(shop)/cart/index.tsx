@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Button, SizableText, XStack, YStack } from 'tamagui';
 
-import CustomHeader from '~/src/components/CustomHeader';
+import CustomHeader from '~/src/components/header/CustomHeader';
 import CartProductCard from '~/src/components/card/CartProductCard';
 import { Container } from '~/tamagui.config';
 

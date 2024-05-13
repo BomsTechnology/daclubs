@@ -9,18 +9,13 @@ import { useSegments } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { useMemo } from 'react';
 import { Image } from 'react-native';
-import { Button, SizableText, XStack, YStack } from 'tamagui';
+import { XStack } from 'tamagui';
+
+import HeaderButton from '~/src/components/header/HeaderButton';
+import HeaderTitle from '~/src/components/header/HeaderTitle';
 const AppLayout = () => {
   const segments = useSegments();
   const nestedCategoryPageOpened = useMemo(() => {
-    return (
-      segments.length > 3 ||
-      (segments.length === 3 && segments[2] === 'category') ||
-      (segments.length === 3 && segments[1] === '(shop)' && segments[2] !== 'home')
-    );
-  }, [segments]);
-
-  const nestedDrawerOpened = useMemo(() => {
     return segments.length > 3 || (segments.length === 3 && segments[2] === 'category');
   }, [segments]);
 
@@ -28,7 +23,7 @@ const AppLayout = () => {
     <Drawer
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
-        swipeEnabled: !nestedDrawerOpened,
+        swipeEnabled: !nestedCategoryPageOpened,
         headerShown: true,
         drawerActiveBackgroundColor: '#fff',
         drawerActiveTintColor: '#000',
@@ -45,19 +40,9 @@ const AppLayout = () => {
           justifyContent: 'center',
         },
         headerLeft: () => (
-          <Button
-            bg="#fff"
-            unstyled
-            ml={20}
-            w={50}
-            borderWidth={1}
-            borderColor="#EBEDF3"
-            h="100%"
-            mt={20}
-            justifyContent="center"
-            alignItems="center">
+          <HeaderButton ml={20} mt={20}>
             <DrawerToggleButton tintColor="#000" />
-          </Button>
+          </HeaderButton>
         ),
         headerStyle: {
           backgroundColor: '#F8F9FA',
@@ -65,40 +50,18 @@ const AppLayout = () => {
           elevation: 0,
           shadowOpacity: 0,
         },
-        headerTitle: () => (
-          <YStack alignItems="center" gap={0} mt={20}>
-            <SizableText fontSize={16} numberOfLines={1}>
-              Store location
-            </SizableText>
-            <XStack alignItems="center" gap={5}>
-              <Ionicons name="location" size={16} color="#000" />
-              <SizableText fontWeight="700" fontSize={18} numberOfLines={1}>
-                Mondolibug, Sylhet
-              </SizableText>
-            </XStack>
-          </YStack>
-        ),
+        headerTitle: () => <HeaderTitle mt={20} />,
         headerRight: () => (
-          <Button
-            bg="#fff"
-            unstyled
-            mr={20}
-            w={50}
-            borderWidth={1}
-            borderColor="#EBEDF3"
-            h="100%"
-            mt={20}
-            alignItems="center"
-            justifyContent="center">
+          <HeaderButton mr={20} mt={20}>
             <Ionicons name="notifications" size={20} color="#000" />
-          </Button>
+          </HeaderButton>
         ),
       }}>
       <Drawer.Screen
         name="(shop)"
         options={{
           drawerLabel: 'Accueil',
-          headerShown: !nestedCategoryPageOpened,
+          headerShown: false,
           drawerIcon: ({ color, size }) => <Ionicons name="home-outline" color={color} size={16} />,
         }}
       />

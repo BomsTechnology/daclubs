@@ -57,10 +57,20 @@ export interface MainProductProps {
   publishedAt: Date;
   productType: string;
   options?: OptionProps[];
-  images?: ImageProps[];
+  images?: {
+    edges: {
+      cursor: string;
+      node: ImageProps;
+    }[];
+  };
   tags?: string[];
   featuredImage: ImageProps;
-  variants?: VariantProps[];
+  variants?: {
+    edges: {
+      cursor: string;
+      node: VariantProps;
+    }[];
+  };
   vendor?: string;
   onlineStoreUrl?: string;
   updatedAt?: Date;
@@ -70,4 +80,16 @@ export interface MainProductProps {
   };
 }
 
-export default interface ProductProps {}
+export default interface ProductProps {
+  cursor: string;
+  node: MainProductProps;
+}
+
+export interface ProductInfiniteScrollProps {
+  edges: ProductProps[];
+  pageInfo: {
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    endCursor: string;
+  };
+}

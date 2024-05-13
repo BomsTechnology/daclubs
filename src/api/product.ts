@@ -1,7 +1,7 @@
-import ProductProps from '../types/ProductProps';
+import { ProductInfiniteScrollProps, MainProductProps } from '../types/ProductProps';
 import client from '../utils/shopify';
 
-export const getProducts = async ({ pageParam = '' }): Promise<ProductProps[]> => {
+export const getProducts = async ({ pageParam = '' }): Promise<ProductInfiniteScrollProps> => {
   const productsQuery = `
       query getProducts {
               products(first: 50${pageParam ? `, after: "${pageParam}"` : ''}) {
@@ -38,19 +38,18 @@ export const getProducts = async ({ pageParam = '' }): Promise<ProductProps[]> =
                 pageInfo {
                     hasNextPage
                     hasPreviousPage
-                    startCursor
+                    endCursor
                 }
               }
             }`;
   const { data, errors } = await client.request(productsQuery);
   if (errors) throw errors;
   return data.products;
-}
-export const getProduct = async (): Promise<ProductProps> => {
-  ` products(first: 2) {
-    edges {
-      cursor
-      node {
+};
+export const getProduct = async (id: string): Promise<MainProductProps> => {
+  const productQuery = `
+  query getProduct($id: ID!) {
+  product(id: $id) {
         id
         availableForSale
         handle
@@ -58,7 +57,7 @@ export const getProduct = async (): Promise<ProductProps> => {
           altText
           height
           id
-          url(transform: {maxHeight: 10, maxWidth: 10})
+          url(transform: {maxHeight: 500, maxWidth: 500})
           width
         }
         images(first: 10) {
@@ -68,7 +67,7 @@ export const getProduct = async (): Promise<ProductProps> => {
               altText
               height
               id
-              url(transform: {maxHeight: 10, maxWidth: 10})
+              url(transform: {maxHeight: 500, maxWidth: 500})
               width
             }
           }
@@ -111,57 +110,61 @@ export const getProduct = async (): Promise<ProductProps> => {
         totalInventory
         trackingParameters
         updatedAt
-        variants(first: 1) {
-          nodes {
-            weightUnit
-            weight
-            unitPrice {
-              amount
-              currencyCode
-            }
-            unitPriceMeasurement {
-              measuredType
-              quantityUnit
-              quantityValue
-              referenceUnit
-              referenceValue
-            }
-            title
-            taxable
-            sku
-            availableForSale
-            barcode
-            id
-            currentlyNotInStock
-            image {
-              altText
-              height
+        isGiftCard
+        variants(first: 100) {
+          edges {
+            node {
               id
-              url(transform: {maxHeight: 10, maxWidth: 10})
-              width
-            }
-            quantityAvailable
-            requiresShipping
-            price {
-              amount
-              currencyCode
-            }
-            priceV2 {
-              amount
-              currencyCode
-            }
-            compareAtPrice {
-              amount
-              currencyCode
+              image {
+                url(transform: {maxHeight: 10, maxWidth: 10})
+                width
+                height
+                altText
+                id
+              }
+              availableForSale
+              barcode
+              currentlyNotInStock
+              title
+              unitPrice {
+                amount
+                currencyCode
+              }
+              unitPriceMeasurement {
+                measuredType
+                quantityUnit
+                quantityValue
+                referenceUnit
+                referenceValue
+              }
+              weight
+              weightUnit
+              taxable
+              sku
+              selectedOptions {
+                name
+                value
+              }
+              compareAtPrice {
+                amount
+                currencyCode
+              }
+              price {
+                amount
+                currencyCode
+              }
+              requiresShipping
+              quantityAvailable
             }
           }
         }
-        isGiftCard
       }
-    }
-    pageInfo {
-      hasNextPage
-      hasPreviousPage
     }`;
-  return [];
+  const { data, errors } = await client.request(productQuery, {
+    variables: {
+      id,
+    },
+  });
+  if (errors) throw errors;
+  return data.product;
 };

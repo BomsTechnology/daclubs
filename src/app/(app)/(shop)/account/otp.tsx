@@ -1,6 +1,6 @@
 import { Input, ScrollView, SizableText, YStack, Button } from 'tamagui';
 
-import CustomHeader from '~/src/components/CustomHeader';
+import CustomHeader from '~/src/components/header/CustomHeader';
 import { Container } from '~/tamagui.config';
 
 export default function Page() {

@@ -29,7 +29,7 @@ export interface CollectionWithProductsProps {
     pageInfo: {
       hasNextPage: boolean;
       hasPreviousPage: boolean;
-      startCursor: string;
+      endCursor: string;
     };
   };
 }

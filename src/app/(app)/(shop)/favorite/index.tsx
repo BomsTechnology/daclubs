@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { View } from 'react-native';
 
-import CustomHeader from '~/src/components/CustomHeader';
+import CustomHeader from '~/src/components/header/CustomHeader';
 import ProductCard from '~/src/components/card/ProductCard';
 import { Container } from '~/tamagui.config';
 
@@ -32,7 +32,7 @@ const Page = () => {
           numColumns={2}
           showsVerticalScrollIndicator={false}
           renderItem={({ item, index }) => <ProductCard peer={(index + 1) % 2 === 0} />}
-          estimatedItemSize={100}
+          estimatedItemSize={500}
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         />
       </Container>

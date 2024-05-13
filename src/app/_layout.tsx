@@ -16,6 +16,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Provider as JotaiProvider } from 'jotai';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ToastProvider } from 'react-native-toast-notifications';
 import { TamaguiProvider } from 'tamagui';
 
 import Roostack from '../components/Roostack';
@@ -53,8 +54,13 @@ export default function Root() {
       <TamaguiProvider config={config} defaultTheme="light">
         <GestureHandlerRootView style={{ flex: 1 }}>
           <QueryClientProvider client={queryClient}>
-            <Roostack />
-            <StatusBar style="auto" />
+            <ToastProvider
+              offsetTop={50}
+              swipeEnabled
+              textStyle={{ fontFamily: 'RalewayRegular', textAlign: 'center' }}>
+              <Roostack />
+              <StatusBar style="auto" />
+            </ToastProvider>
           </QueryClientProvider>
         </GestureHandlerRootView>
       </TamaguiProvider>
