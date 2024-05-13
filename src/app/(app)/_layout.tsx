@@ -16,7 +16,10 @@ import HeaderTitle from '~/src/components/header/HeaderTitle';
 const AppLayout = () => {
   const segments = useSegments();
   const nestedCategoryPageOpened = useMemo(() => {
-    return segments.length > 3 || (segments.length === 3 && segments[2] === 'category');
+    return (
+      segments.length > 3 ||
+      (segments.length === 3 && (segments[2] === 'category' || segments[2] === 'detail'))
+    );
   }, [segments]);
 
   return (
@@ -69,6 +72,7 @@ const AppLayout = () => {
         name="sneakers"
         options={{
           title: 'Sneakers',
+          headerShown: !nestedCategoryPageOpened,
           drawerIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="shoe-sneaker" color={color} size={20} />
           ),

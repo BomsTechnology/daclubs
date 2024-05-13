@@ -6,8 +6,8 @@ import { View } from 'react-native';
 import { Button, SizableText, Spinner } from 'tamagui';
 
 import { getProducts } from '~/src/api/product';
-import ErrorScreen from '~/src/components/ErrorScreen';
-import LoadingScreen from '~/src/components/LoadingScreen';
+import ErrorScreen from '~/src/components/screen/ErrorScreen';
+import LoadingScreen from '~/src/components/screen/LoadingScreen';
 import ProductCard from '~/src/components/card/ProductCard';
 import { MainProductProps } from '~/src/types/ProductProps';
 import { Container } from '~/tamagui.config';
@@ -52,7 +52,9 @@ const Page = () => {
         data={products}
         numColumns={2}
         showsVerticalScrollIndicator={false}
-        renderItem={({ item, index }) => <ProductCard {...item} peer={(index + 1) % 2 === 0} />}
+        renderItem={({ item, index }) => (
+          <ProductCard from="(app)/sneakers" {...item} peer={(index + 1) % 2 === 0} />
+        )}
         estimatedItemSize={500}
         contentContainerStyle={{ paddingBottom: 50 }}
         onEndReached={() => {

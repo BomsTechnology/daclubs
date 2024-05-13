@@ -1,15 +1,37 @@
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { router } from 'expo-router';
+import { memo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
-const CartProductCard = () => {
+import { ProductCartProps } from '~/src/types/ProductProps';
+
+const CartProductCard = ({
+  onDelete,
+  onIncrement,
+  onDecrement,
+  ...props
+}: ProductCartProps & {
+  onDelete?: () => void;
+  onIncrement?: () => void;
+  onDecrement?: () => void;
+}) => {
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <Pressable
+        style={styles.content}
+        onPress={() =>
+          router.push({
+            pathname: '/cart/detail',
+            params: {
+              id: props.product.id,
+            },
+          })
+        }>
         <View style={styles.imageContainer}>
           <FastImage
             source={{
-              uri: 'https://daclub-snkrs.com/cdn/shop/files/D97943EB-92C7-4B23-BA9F-90508444F49D.jpg?v=1710327557&width=922',
+              uri: props.product.featuredImage.url,
               priority: FastImage.priority.normal,
             }}
             resizeMode={FastImage.resizeMode.contain}
@@ -17,16 +39,33 @@ const CartProductCard = () => {
           />
         </View>
         <View style={styles.info}>
-          <Text style={styles.brand}>AIR JORDAN</Text>
-          <Text style={styles.name}>AIR JORDAN 1 RETRO LOW OG TROPHY ROOM</Text>
-          <Text style={[styles.name, { color: '#000' }]}>42.5 E - 9 US (1)</Text>
-          <Text style={styles.price}>€ 100</Text>
+          <Text style={styles.brand}>{props.product.vendor}</Text>
+          <Text style={styles.name}>{props.product.title}</Text>
+          {props.variant.selectedOptions.map((option, index) => (
+            <Text key={`${option.name}-${index}`} style={[styles.name, { color: '#000' }]}>
+              {option.value}
+            </Text>
+          ))}
+          <Text style={styles.price}>
+            {`${props.variant.price.amount} ${props.variant.price.currencyCode}`}
+          </Text>
         </View>
-      </View>
-      <Pressable style={styles.deleteBtn}>
-        <Ionicons name="trash-outline" size={18} color="#F85454" />
-        <Text style={{ color: '#F85454' }}>Supprimer</Text>
       </Pressable>
+      <View style={styles.footer}>
+        <View style={styles.quantity}>
+          <TouchableOpacity onPress={onDecrement}>
+            <Ionicons name="remove" size={18} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.quantityText}>{props.quantity}</Text>
+          <TouchableOpacity onPress={onIncrement}>
+            <Ionicons name="add" size={18} color="black" />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={onDelete} style={styles.deleteBtn}>
+          <Ionicons name="trash-outline" size={18} color="#F85454" />
+          <Text style={{ color: '#F85454' }}>Supprimer</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -38,6 +77,7 @@ const styles = StyleSheet.create({
     borderColor: '#EBEDF3',
     backgroundColor: 'white',
     padding: 15,
+    marginBottom: 10,
   },
   content: {
     flexDirection: 'row',
@@ -47,8 +87,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#EBEDF3',
   },
   deleteBtn: {
-    alignSelf: 'flex-end',
-    marginTop: 10,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
@@ -86,6 +124,37 @@ const styles = StyleSheet.create({
     fontFamily: 'RalewayExtraBold',
     fontSize: 20,
   },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 10,
+  },
+  quantity: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: '#EBEDF3',
+  },
+  quantityText: {
+    fontFamily: 'RalewayExtraBold',
+    fontSize: 20,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: '#000',
+  },
+  quantityBtn: {},
 });
 
-export default CartProductCard;
+export default memo(
+  CartProductCard,
+  (prev, next) =>
+    prev.product.id === next.product.id &&
+    prev.variant.id === next.variant.id &&
+    prev.quantity === next.quantity
+);

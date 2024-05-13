@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
@@ -8,12 +9,19 @@ import { MainProductProps } from '~/src/types/ProductProps';
 const ProductCard = ({
   from,
   peer,
+  isFavorite,
+  setWishlist,
   ...product
-}: MainProductProps & { peer: boolean; from: string }) => {
+}: MainProductProps & {
+  peer: boolean;
+  from: string;
+  isFavorite: boolean;
+  setWishlist: () => void;
+}) => {
   return (
     <View style={[styles.container, peer ? styles.ml : styles.mr]}>
-      <Pressable style={styles.heartBtn}>
-        <Ionicons name="heart-outline" size={24} color="black" />
+      <Pressable style={styles.heartBtn} onPress={setWishlist}>
+        <Ionicons name={isFavorite ? 'heart' : 'heart-outline'} size={24} color="black" />
       </Pressable>
       <Pressable
         onPress={() =>
@@ -52,7 +60,10 @@ const ProductCard = ({
   );
 };
 
-export default ProductCard;
+export default memo(
+  ProductCard,
+  (prev, next) => prev.id === next.id && prev.isFavorite === next.isFavorite
+);
 
 const styles = StyleSheet.create({
   container: {

@@ -85,6 +85,12 @@ export default interface ProductProps {
   node: MainProductProps;
 }
 
+export interface ProductCartProps {
+  product: MainProductProps;
+  quantity: number;
+  variant: VariantProps;
+}
+
 export interface ProductInfiniteScrollProps {
   edges: ProductProps[];
   pageInfo: {

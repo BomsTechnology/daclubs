@@ -25,7 +25,7 @@ const ShopLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="cart/index"
+        name="cart"
         options={{
           title: 'cart',
           tabBarIcon: ({ focused, color }) => (

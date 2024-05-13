@@ -1,19 +1,22 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { useCallback, useRef, useState } from 'react';
+import { router } from 'expo-router';
+import { useAtom } from 'jotai';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import PagerView from 'react-native-pager-view';
 import { Accordion, Button, Paragraph, SizableText, XStack, YStack } from 'tamagui';
 
 import ProductDot from './ProductDot';
-import ErrorScreen from '../ErrorScreen';
-import LoadingScreen from '../LoadingScreen';
 import CustomHeader from '../header/CustomHeader';
+import ErrorScreen from '../screen/ErrorScreen';
+import LoadingScreen from '../screen/LoadingScreen';
 
 import { getProduct } from '~/src/api/product';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import { VariantProps } from '~/src/types/ProductProps';
+import { cartWithStorage, wishlistWithStorage } from '~/src/utils/storage';
 
 const SizeTypes = ['EU', 'US'];
 
@@ -25,6 +28,8 @@ type SizeProps = {
 
 const ProductDetail = ({ id }: { id: string }) => {
   const { showMessage } = useShowNotification();
+  const [cart, setCart] = useAtom(cartWithStorage);
+  const [wishlist, setWishlist] = useAtom(wishlistWithStorage);
   const [selectedVariant, setSelectedVariant] = useState<VariantProps | null>(null);
   const [selectedSizeType, setSelectedSizeType] = useState('EU');
   const [listSizes, setListSizes] = useState<SizeProps[]>([]);
@@ -32,6 +37,8 @@ const ProductDetail = ({ id }: { id: string }) => {
   const [selectedDeliveryMode, setSelectedDeliveryMode] = useState('Standard');
   const [currentPage, setCurrentPage] = useState(0);
   const pageRef = useRef<PagerView>(null);
+
+  const isFavorite = wishlist.some((item) => item.id === id);
 
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ['product', id],
@@ -53,6 +60,12 @@ const ProductDetail = ({ id }: { id: string }) => {
         return res;
       }),
   });
+
+  useEffect(() => {
+    if (data && selectedSize) {
+      findVariant();
+    }
+  }, [selectedSize, selectedDeliveryMode]);
 
   const SizeItem = ({ ...size }: SizeProps) => {
     return (
@@ -104,8 +117,42 @@ const ProductDetail = ({ id }: { id: string }) => {
     );
   };
 
+  const setWishlistItem = () => {
+    if (data) {
+      const index = wishlist.indexOf(data);
+      if (index > -1) {
+        setWishlist(wishlist.filter((wishlist) => wishlist.id !== data.id));
+        showMessage('Supprimé des favoris', 'success');
+      } else {
+        setWishlist([...wishlist, data]);
+        showMessage('Ajouté aux favoris', 'success');
+      }
+    }
+  };
+
   const addToCart = async () => {
-    console.log(selectedSize, selectedDeliveryMode);
+    if (!selectedSize) {
+      showMessage('Veuillez choisir une taille');
+    } else {
+      let alreadyInCart = false;
+      const newCart = cart.map((item) => {
+        if (item.product.id === data!.id && item.variant.id === selectedVariant!.id) {
+          alreadyInCart = true;
+          item.quantity = item.quantity + 1;
+          return item;
+        }
+        return item;
+      });
+
+      if (alreadyInCart) {
+        setCart([...newCart]);
+      } else {
+        setCart([...cart, { product: data!, variant: selectedVariant!, quantity: 1 }]);
+      }
+
+      showMessage('Ajouté au panier', 'success');
+      setTimeout(() => router.push('/cart'), 1000);
+    }
   };
 
   if (isPending) return <LoadingScreen />;
@@ -131,12 +178,23 @@ const ProductDetail = ({ id }: { id: string }) => {
           variant.node.selectedOptions[0].value === selectedSize &&
           variant.node.selectedOptions[1].value === selectedDeliveryMode
         );
-      })[0].node;
+      })[0]!.node;
+      if (variant && variant.availableForSale) {
+        if (selectedDeliveryMode === 'Express' && variant.quantityAvailable === 0) {
+          showMessage(
+            "Désolé la livraison express n'est pas disponible pour le moment pour ce produit :("
+          );
+          return;
+        }
+        setSelectedVariant(variant);
+      } else {
+        showMessage('Désolé vous ne pouvez pas acheter cette variante pour le moment :(');
+      }
     } else if (data.options && data.options[0] && data.options[0].name === 'Taille') {
       const variant = data.variants?.edges.filter((variant) => {
         return variant.node.selectedOptions[0].value === selectedSize;
-      })[0].node;
-      if (variant) {
+      })[0]!.node;
+      if (variant && variant.availableForSale) {
         setSelectedVariant(variant);
       } else {
         showMessage('Désolé vous ne pouvez pas acheter cette variante pour le moment :(');
@@ -179,10 +237,12 @@ const ProductDetail = ({ id }: { id: string }) => {
             {data.title}
           </SizableText>
           <SizableText textTransform="uppercase" fontSize={25} fontWeight="800" mt={5}>
-            {`${data.priceRange.minVariantPrice.amount} ${data.priceRange.minVariantPrice.currencyCode}`}
+            {selectedVariant
+              ? `${selectedVariant?.price.amount} ${selectedVariant?.price.currencyCode}`
+              : `${data.priceRange.minVariantPrice.amount} ${data.priceRange.minVariantPrice.currencyCode}`}
           </SizableText>
         </YStack>
-        {data.options && data.options[0].name === 'Taille' && (
+        {data.options && data.options[0] && data.options[0].name === 'Taille' && (
           <YStack bg="white" px={20} py={10}>
             <XStack justifyContent="space-between" alignItems="center" mb={20}>
               <SizableText>Selectionnez votre taille : </SizableText>
@@ -203,14 +263,16 @@ const ProductDetail = ({ id }: { id: string }) => {
             </ScrollView>
           </YStack>
         )}
-
-        <YStack bg="white" px={20} py={10} mt={5}>
-          <SizableText mb={20}>Selectionnez le mode de livraison : </SizableText>
-          <XStack gap={20}>
-            <DeliveryItem text="Standard" />
-            <DeliveryItem text="Express" />
-          </XStack>
-        </YStack>
+        {data.options && data.options[1] && data.options[1].name === 'Livraison' && (
+          <YStack bg="white" px={20} py={10} mt={5}>
+            <SizableText mb={20}>Selectionnez le mode de livraison : </SizableText>
+            <XStack gap={20}>
+              {data.options[1].values.map((type) => (
+                <DeliveryItem text={type} />
+              ))}
+            </XStack>
+          </YStack>
+        )}
         <YStack my={5} bg="#fff" px={20} py={10}>
           <Accordion overflow="hidden" width="100%" type="multiple">
             <Accordion.Item value="a1">
@@ -251,12 +313,14 @@ const ProductDetail = ({ id }: { id: string }) => {
       </ScrollView>
       <XStack bg="#fff" px={20} pb={20} pt={10} alignItems="center">
         <SizableText fontWeight="700" fontSize={25} flex={1}>
-          {`${data.priceRange.minVariantPrice.amount} ${data.priceRange.minVariantPrice.currencyCode}`}
+          {selectedVariant
+            ? `${selectedVariant?.price.amount} ${selectedVariant?.price.currencyCode}`
+            : `${data.priceRange.minVariantPrice.amount} ${data.priceRange.minVariantPrice.currencyCode}`}
         </SizableText>
 
         <XStack gap={10} h={40}>
           <Button
-            onPress={() => findVariant()}
+            onPress={() => addToCart()}
             bg="#000"
             borderRadius={0}
             unstyled
@@ -270,14 +334,15 @@ const ProductDetail = ({ id }: { id: string }) => {
             </SizableText>
           </Button>
           <Button
+            onPress={() => setWishlistItem()}
             px={12}
             borderRadius={0}
             borderWidth={1}
-            borderColor="#EBEDF3"
+            borderColor={isFavorite ? '#000' : '#EBEDF3'}
             unstyled
             justifyContent="center"
             alignItems="center">
-            <Ionicons name="heart-outline" size={20} color="#000" />
+            <Ionicons name={isFavorite ? 'heart' : 'heart-outline'} size={20} color="#000" />
           </Button>
         </XStack>
       </XStack>

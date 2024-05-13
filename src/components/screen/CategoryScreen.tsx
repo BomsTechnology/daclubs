@@ -4,12 +4,12 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Spinner } from 'tamagui';
 
-import CustomHeader from './header/CustomHeader';
 import ErrorScreen from './ErrorScreen';
 import LoadingScreen from './LoadingScreen';
-import ProductCard from './card/ProductCard';
-import { getCollectionById, getProductsInCollectionById } from '../api/collection';
-import { MainProductProps } from '../types/ProductProps';
+import { getCollectionById, getProductsInCollectionById } from '../../api/collection';
+import { MainProductProps } from '../../types/ProductProps';
+import ProductCard from '../card/ProductCard';
+import CustomHeader from '../header/CustomHeader';
 
 import { Container } from '~/tamagui.config';
 
@@ -80,7 +80,9 @@ const CategoryScreen = ({ id, from }: { id: string; from: string }) => {
             data={products}
             numColumns={2}
             showsVerticalScrollIndicator={false}
-            renderItem={({ item, index }) => <ProductCard {...item} peer={(index + 1) % 2 === 0} from={from} />}
+            renderItem={({ item, index }) => (
+              <ProductCard {...item} peer={(index + 1) % 2 === 0} from={from} />
+            )}
             estimatedItemSize={500}
             //onEndReachedThreshold={4}
             onEndReached={() => {
