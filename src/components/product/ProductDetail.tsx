@@ -15,7 +15,7 @@ import LoadingScreen from '../screen/LoadingScreen';
 
 import { getProduct } from '~/src/api/product';
 import useShowNotification from '~/src/hooks/useShowNotification';
-import { VariantProps } from '~/src/types/ProductProps';
+import { MainProductProps, VariantProps } from '~/src/types/ProductProps';
 import { cartWithStorage, wishlistWithStorage } from '~/src/utils/storage';
 
 const SizeTypes = ['EU', 'US'];
@@ -44,6 +44,7 @@ const ProductDetail = ({ id }: { id: string }) => {
     queryKey: ['product', id],
     queryFn: () =>
       getProduct(id).then((res) => {
+        setWishlist((prev) => prev);
         if (res.options && res.options[0].name === 'Taille') {
           res.options[0].values.forEach((size: string) => {
             const sizes = size.split('-');
@@ -117,16 +118,14 @@ const ProductDetail = ({ id }: { id: string }) => {
     );
   };
 
-  const setWishlistItem = () => {
-    if (data) {
-      const index = wishlist.indexOf(data);
-      if (index > -1) {
-        setWishlist(wishlist.filter((wishlist) => wishlist.id !== data.id));
-        showMessage('Supprimé des favoris', 'success');
-      } else {
-        setWishlist([...wishlist, data]);
-        showMessage('Ajouté aux favoris', 'success');
-      }
+  const setWishlistItem = (data: MainProductProps) => {
+    const index = wishlist.indexOf(data);
+    if (index > -1) {
+      setWishlist(wishlist.filter((wishlist) => wishlist.id !== data.id));
+      showMessage('Supprimé des favoris', 'success');
+    } else {
+      setWishlist([...wishlist, data]);
+      showMessage('Ajouté aux favoris', 'success');
     }
   };
 
@@ -334,7 +333,7 @@ const ProductDetail = ({ id }: { id: string }) => {
             </SizableText>
           </Button>
           <Button
-            onPress={() => setWishlistItem()}
+            onPress={() => setWishlistItem(data)}
             px={12}
             borderRadius={0}
             borderWidth={1}

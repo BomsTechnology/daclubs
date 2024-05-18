@@ -14,11 +14,7 @@ const Page = () => {
   const [cart, setCart] = useAtom(cartWithStorage);
   const total = cart.reduce((acc, item) => acc + item.quantity * item.variant.price.amount, 0);
   const onDelete = (item: ProductCartProps) => {
-    setCart((prev) =>
-      prev.filter(
-        (prod) => prod.product.id !== item.product.id && prod.variant.id !== item.variant.id
-      )
-    );
+    setCart((prev) => prev.filter((prod) => prod.variant.id !== item.variant.id));
   };
 
   const onIncrement = (item: ProductCartProps) => {

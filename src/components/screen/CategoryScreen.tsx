@@ -1,5 +1,6 @@
 import { FlashList } from '@shopify/flash-list';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Spinner } from 'tamagui';
@@ -11,9 +12,13 @@ import { MainProductProps } from '../../types/ProductProps';
 import ProductCard from '../card/ProductCard';
 import CustomHeader from '../header/CustomHeader';
 
+import useShowNotification from '~/src/hooks/useShowNotification';
+import { wishlistWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
 const CategoryScreen = ({ id, from }: { id: string; from: string }) => {
+  const { showMessage } = useShowNotification();
+  const [wishlist, setWishlist] = useAtom(wishlistWithStorage);
   const [products, setProducts] = useState<MainProductProps[]>([]);
   const {
     data: collection,
@@ -50,6 +55,17 @@ const CategoryScreen = ({ id, from }: { id: string; from: string }) => {
     }
   }, [collectionWithProducts]);
 
+  const setWishlistItem = (data: MainProductProps) => {
+    const index = wishlist.indexOf(data);
+    if (index > -1) {
+      setWishlist(wishlist.filter((wishlist) => wishlist.id !== data.id));
+      showMessage('Supprimé des favoris', 'success');
+    } else {
+      setWishlist([...wishlist, data]);
+      showMessage('Ajouté aux favoris', 'success');
+    }
+  };
+
   if (isPendingCollection) return <LoadingScreen />;
   if (errorCollection)
     return (
@@ -80,8 +96,15 @@ const CategoryScreen = ({ id, from }: { id: string; from: string }) => {
             data={products}
             numColumns={2}
             showsVerticalScrollIndicator={false}
+            extraData={wishlist}
             renderItem={({ item, index }) => (
-              <ProductCard {...item} peer={(index + 1) % 2 === 0} from={from} />
+              <ProductCard
+                isFavorite={wishlist.some((prod) => prod.id === item.id)}
+                setWishlist={() => setWishlistItem(item)}
+                {...item}
+                peer={(index + 1) % 2 === 0}
+                from={from}
+              />
             )}
             estimatedItemSize={500}
             //onEndReachedThreshold={4}

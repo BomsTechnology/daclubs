@@ -60,10 +60,7 @@ const ProductCard = ({
   );
 };
 
-export default memo(
-  ProductCard,
-  (prev, next) => prev.id === next.id && prev.isFavorite === next.isFavorite
-);
+export default ProductCard;
 
 const styles = StyleSheet.create({
   container: {

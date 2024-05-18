@@ -63,7 +63,7 @@ const Page = () => {
           </YStack>
           <YStack>
             <SizableText fontWeight="700" color="#0019FF" textDecorationLine="underline">
-              Se connecter
+              Se connecter/ S'inscrire
             </SizableText>
           </YStack>
         </Button>

@@ -21,6 +21,7 @@ import { Container } from '~/tamagui.config';
 const Page = () => {
   const { showMessage } = useShowNotification();
   const [wishlist, setWishlist] = useAtom(wishlistWithStorage);
+  //const wishlistRef = useRef(wishlist);
   const {
     data: collections,
     isPending: isPendingCollections,
@@ -106,6 +107,8 @@ const Page = () => {
             data={collectionWithProduct?.products.edges}
             numColumns={2}
             showsVerticalScrollIndicator={false}
+            keyExtractor={(item) => item.node.id}
+            extraData={wishlist}
             renderItem={({ item, index }) => (
               <ProductCard
                 setWishlist={() => setWishlistItem(item.node)}
