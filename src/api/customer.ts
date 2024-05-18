@@ -1,5 +1,5 @@
-import { CustomerAccessTokenProps, CustomerProps } from '../types/CustomerProps';
 import CustomError from '../types/CustomError';
+import { CustomerAccessTokenProps, CustomerProps } from '../types/CustomerProps';
 import client from '../utils/shopify';
 
 export interface CustomerCreateInput {
@@ -316,6 +316,38 @@ export const createAccessToken = async (
     throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
   }
   return data.customerAccessTokenCreate.customerAccessToken;
+};
+
+export const deleteAccessToken = async (token: string): Promise<void> => {
+  const deleteAccessTokenMutation = `
+  mutation customerAccessTokenDelete($customerAccessToken: String!) {
+    customerAccessTokenDelete(customerAccessToken: $customerAccessToken) {
+      deletedAccessToken
+      deletedCustomerAccessTokenId
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+  `;
+  const { data, errors } = await client.request(deleteAccessTokenMutation, {
+    variables: {
+      customerAccessToken: token,
+    },
+  });
+  if (errors) {
+    console.log(errors);
+    throw new CustomError(
+      errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
+      errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
+    );
+  }
+  if (data.customerAccessTokenDelete.userErrors.length > 0) {
+    const graphQLError = data.customerAccessTokenDelete.userErrors[0];
+    console.log(graphQLError);
+    throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
+  }
 };
 
 export const getCustomer = async (token: string): Promise<CustomerProps> => {

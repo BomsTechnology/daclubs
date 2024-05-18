@@ -1,31 +1,89 @@
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
+import { useAtom } from 'jotai';
+import { RESET } from 'jotai/utils';
 import { FlatList } from 'react-native';
-import { Button, SizableText, XStack, YStack } from 'tamagui';
+import Spinner from 'react-native-loading-spinner-overlay';
+import { Button, SizableText, XStack } from 'tamagui';
 
+import { getCustomer, deleteAccessToken } from '~/src/api/customer';
+import AccountHeader from '~/src/components/header/AccountHeader';
 import CustomHeader from '~/src/components/header/CustomHeader';
+import useShowNotification from '~/src/hooks/useShowNotification';
+import { tokenWithStorage, customerAtom } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
-const ITEM = [
-  {
-    title: 'Mes commandes',
-    icon: <Ionicons name="bag-outline" size={20} color="black" />,
-  },
-  {
-    title: 'FAQ',
-    icon: <Ionicons name="help-circle-outline" size={25} color="black" />,
-  },
-];
-
 const Page = () => {
+  const { showMessage } = useShowNotification();
+  const [token, setToken] = useAtom(tokenWithStorage);
+  const [customer, setCustomer] = useAtom(customerAtom);
+  const { refetch, status } = useQuery({
+    queryKey: ['customer', token.token?.accessToken],
+    queryFn: () =>
+      getCustomer(token.token?.accessToken!).then((res) => {
+        setCustomer({
+          customer: res,
+        });
+        return res;
+      }),
+  });
+
+  const mutationdeleteAccessToken = useMutation({
+    mutationFn: (token: string) => deleteAccessToken(token),
+    onSuccess(data, variables, context) {
+      refetch();
+      setCustomer({});
+      setToken(RESET);
+      showMessage('Deconnexion reussie', 'success');
+    },
+    onError: (error: any) => {
+      showMessage(error.message || 'Une erreur est survenue');
+    },
+  });
+
+  const ITEM = [
+    {
+      title: 'Mes commandes',
+      icon: <Ionicons name="bag-outline" size={20} color="black" />,
+      action: () => router.push('/account/order/'),
+      isAuth: true,
+    },
+    {
+      title: 'Mes adresses',
+      icon: <Ionicons name="location-outline" size={20} color="black" />,
+      action: () => router.push('/account/address/'),
+      isAuth: true,
+    },
+    {
+      title: 'FAQ',
+      icon: <Ionicons name="help-circle-outline" size={25} color="black" />,
+      action: () => router.push('/account/faq'),
+      isAuth: false,
+    },
+    {
+      title: 'Se deconnecter',
+      icon: <Ionicons name="log-in-outline" size={20} color="#ff797970" />,
+      color: '#ff797970',
+      action: () => {
+        mutationdeleteAccessToken.mutate(token.token?.accessToken!);
+      },
+      isAuth: true,
+    },
+  ];
+
+  const filterItem = customer.customer ? ITEM : ITEM.filter((item) => item.isAuth === false);
+
   const ListItem = ({
     title,
     icon,
     action,
+    color,
   }: {
     title: string;
     icon: JSX.Element;
     action?: () => void;
+    color?: string;
   }) => {
     return (
       <Button
@@ -34,42 +92,32 @@ const Page = () => {
         w="100%"
         flexDirection="row"
         p={20}
-        borderTopWidth={1}
-        borderTopColor="#EBEDF3"
+        borderBottomWidth={1}
+        borderColor="#EBEDF3"
         alignItems="center"
         justifyContent="space-between">
         <XStack gap={10}>
           {icon}
-          <SizableText fontWeight="500">{title}</SizableText>
+          <SizableText fontWeight="500" color={color ? color : 'black'}>
+            {title}
+          </SizableText>
         </XStack>
-        <Ionicons name="chevron-forward" size={20} color="black" />
+        <Ionicons name="chevron-forward" size={20} color={color ? color : 'black'} />
       </Button>
     );
   };
 
   return (
     <>
+      <Spinner visible={status === 'pending' || mutationdeleteAccessToken.isPending} />
       <CustomHeader title="Mon compte" icon={<Ionicons name="person" size={20} color="black" />} />
       <Container p={0}>
-        <Button
-          unstyled
-          flexDirection="row"
-          bg="#F1F2F3"
-          p={20}
-          alignItems="center"
-          onPress={() => router.push('/account/sign-in')}>
-          <YStack bg="#07011E" p={15} borderRadius={50}>
-            <AntDesign name="logout" size={30} color="#fff" />
-          </YStack>
-          <YStack>
-            <SizableText fontWeight="700" color="#0019FF" textDecorationLine="underline">
-              Se connecter/ S'inscrire
-            </SizableText>
-          </YStack>
-        </Button>
+        <AccountHeader customer={customer.customer} />
         <FlatList
-          data={ITEM}
-          renderItem={({ item }) => <ListItem title={item.title} icon={item.icon} />}
+          data={filterItem}
+          renderItem={({ item }) => (
+            <ListItem title={item.title} icon={item.icon} action={item.action} color={item.color} />
+          )}
           keyExtractor={(item) => item.title}
         />
       </Container>

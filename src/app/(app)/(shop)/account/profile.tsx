@@ -14,12 +14,12 @@ import Button from '~/src/components/form/Button';
 import Input from '~/src/components/form/Input';
 import CustomHeader from '~/src/components/header/CustomHeader';
 import useShowNotification from '~/src/hooks/useShowNotification';
-import { queryClient } from '~/src/utils/queryClient';
-import { tokenWithStorage } from '~/src/utils/storage';
+import { tokenWithStorage, customerAtom } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
 export default function Page() {
   const [, setToken] = useAtom(tokenWithStorage);
+  const [, setCustomer] = useAtom(customerAtom);
   const { showMessage } = useShowNotification();
   const { control, handleSubmit, setError } = useForm<FieldValues>({
     defaultValues: {
@@ -31,6 +31,9 @@ export default function Page() {
   const mutationCreateCustomer = useMutation({
     mutationFn: (input: CustomerCreateInput) => createCustomer(input),
     onSuccess(data, variables, context) {
+      setCustomer({
+        customer: data,
+      });
       mutationCreateAccessToken.mutate({
         email: variables.email,
         password: variables.password,
@@ -44,7 +47,6 @@ export default function Page() {
   const mutationCreateAccessToken = useMutation({
     mutationFn: (input: CustomerAccessTokenCreateInput) => createAccessToken(input),
     onSuccess(data, variables, context) {
-      queryClient.invalidateQueries({ queryKey: ['customer', data.accessToken] });
       setToken({
         token: data,
       });
@@ -82,7 +84,7 @@ export default function Page() {
   };
   return (
     <>
-      <CustomHeader title="S'inscrire" />
+      <CustomHeader title="Editer mon profil" />
       <Container>
         <ScrollView showsVerticalScrollIndicator={false}>
           <YStack mt={20}>

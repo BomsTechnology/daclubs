@@ -4,42 +4,30 @@ import { useAtom } from 'jotai';
 import { FieldValues, useForm } from 'react-hook-form';
 import { SizableText, YStack, ScrollView, XStack } from 'tamagui';
 
-import { createAccessToken, CustomerAccessTokenCreateInput, getCustomer } from '~/src/api/customer';
+import { createAccessToken, CustomerAccessTokenCreateInput } from '~/src/api/customer';
 import Button from '~/src/components/form/Button';
 import Input from '~/src/components/form/Input';
 import CustomHeader from '~/src/components/header/CustomHeader';
 import useShowNotification from '~/src/hooks/useShowNotification';
-import { customerWithStorage } from '~/src/utils/storage';
+import { queryClient } from '~/src/utils/queryClient';
+import { tokenWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
 export default function Page() {
-  const [, setCustomer] = useAtom(customerWithStorage);
+  const [, setToken] = useAtom(tokenWithStorage);
   const { showMessage } = useShowNotification();
   const { control, handleSubmit } = useForm();
   const mutationCreateAccessToken = useMutation({
     mutationFn: (input: CustomerAccessTokenCreateInput) => createAccessToken(input),
     onSuccess(data, variables, context) {
-      console.log(data);
-      setCustomer({
+      setToken({
         token: data,
       });
-      mutationGetCustomer.mutate(data.accessToken);
-    },
-    onError: (error: any) => {
-      showMessage(error.message || 'Une erreur est survenue');
-    },
-  });
-
-  const mutationGetCustomer = useMutation({
-    mutationFn: (token: string) => getCustomer(token),
-    onSuccess(data, variables, context) {
-      setCustomer({
-        customer: data,
-      });
+      queryClient.invalidateQueries({ queryKey: ['customer', data.accessToken] });
       showMessage('Connexion reussie', 'success');
       router.push('/account/');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       showMessage(error.message || 'Une erreur est survenue');
     },
   });
@@ -93,8 +81,8 @@ export default function Page() {
           </XStack>
           <Button
             onPress={handleSubmit(onSubmit)}
-            loading={mutationCreateAccessToken.isPending || mutationGetCustomer.isPending}
-            disabled={mutationCreateAccessToken.isPending || mutationGetCustomer.isPending}>
+            loading={mutationCreateAccessToken.isPending}
+            disabled={mutationCreateAccessToken.isPending}>
             Se connecter
           </Button>
         </ScrollView>
