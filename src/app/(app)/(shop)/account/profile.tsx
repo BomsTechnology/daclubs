@@ -1,65 +1,67 @@
 import { useMutation } from '@tanstack/react-query';
-import { Link, router } from 'expo-router';
 import { useAtom } from 'jotai';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { SizableText, YStack, ScrollView, XStack } from 'tamagui';
 
-import {
-  createCustomer,
-  CustomerCreateInput,
-  createAccessToken,
-  CustomerAccessTokenCreateInput,
-} from '~/src/api/customer';
+import { CustomerCreateInput, updateCustomer } from '~/src/api/customer';
 import Button from '~/src/components/form/Button';
+import CountrySelect from '~/src/components/form/CountrySelect';
 import Input from '~/src/components/form/Input';
 import CustomHeader from '~/src/components/header/CustomHeader';
+import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
+import CustomError from '~/src/types/CustomError';
 import { tokenWithStorage, customerAtom } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
 export default function Page() {
-  const [, setToken] = useAtom(tokenWithStorage);
-  const [, setCustomer] = useAtom(customerAtom);
+  const { tokenRefresh } = useRefreshToken();
+  const [token, setToken] = useAtom(tokenWithStorage);
+  const [customer, setCustomer] = useAtom(customerAtom);
   const { showMessage } = useShowNotification();
+  const parsedNumber = parsePhoneNumberFromString(customer.customer?.phone!);
+  const [phoneCode, setPhoneCode] = useState('+' + parsedNumber?.countryCallingCode);
   const { control, handleSubmit, setError } = useForm<FieldValues>({
     defaultValues: {
-      isocode: '+33',
-      phonenumber: '',
+      phonenumber: parsedNumber?.nationalNumber,
+      firstname: customer.customer?.firstName,
+      lastname: customer.customer?.lastName,
+      email: customer.customer?.email,
+      password: '',
+      confirmPassword: '',
     },
   });
 
-  const mutationCreateCustomer = useMutation({
-    mutationFn: (input: CustomerCreateInput) => createCustomer(input),
+  const mutationUpdateCustomer = useMutation({
+    mutationFn: (input: CustomerCreateInput) =>
+      updateCustomer({
+        token: token.token?.accessToken!,
+        props: input,
+      }),
     onSuccess(data, variables, context) {
       setCustomer({
-        customer: data,
+        customer: data.customer,
       });
-      mutationCreateAccessToken.mutate({
-        email: variables.email,
-        password: variables.password,
-      });
-    },
-    onError: (error) => {
-      showMessage(error.message || 'Une erreur est survenue');
-    },
-  });
-
-  const mutationCreateAccessToken = useMutation({
-    mutationFn: (input: CustomerAccessTokenCreateInput) => createAccessToken(input),
-    onSuccess(data, variables, context) {
       setToken({
-        token: data,
+        token: data.customerAccessToken,
       });
-      showMessage('Votre compte a bien été crée', 'success');
-      router.push('/account/');
+      showMessage('Votre profil a bien été mis a jour', 'success');
     },
-    onError: (error: any) => {
-      showMessage(error.message || 'Une erreur est survenue');
+    onError: (error: CustomError, variables, context) => {
+      if (error.code === 'TOKEN_INVALID' || error.code === 'INVALID_MULTIPASS_REQUEST') {
+        tokenRefresh.mutate();
+        showMessage('Veillez patienter...', 'normal');
+        mutationUpdateCustomer.mutate(variables);
+      } else {
+        showMessage(error.message || 'Une erreur est survenue');
+      }
     },
   });
 
   const onSubmit = (data: FieldValues) => {
-    if (!data.isocode) {
+    if (!phoneCode) {
       setError('phonenumber', {
         type: 'manual',
         message: 'Le code pays est obligatoire',
@@ -73,12 +75,12 @@ export default function Page() {
       });
       return;
     }
-    mutationCreateCustomer.mutate({
+    mutationUpdateCustomer.mutate({
       firstName: data.firstname,
       lastName: data.lastname,
       acceptsMarketing: true,
       email: data.email,
-      phone: `${data.isocode}${data.phonenumber}`,
+      phone: `${phoneCode}${data.phonenumber}`,
       password: data.password,
     });
   };
@@ -115,24 +117,24 @@ export default function Page() {
             <SizableText mb={10} fontWeight="700">
               Numéro de téléphone
             </SizableText>
-            <XStack alignItems="center" justifyContent="flex-start" space="$2">
-              <Input
-                maxLength={5}
-                keyboardType="numeric"
+            <XStack alignItems="flex-start" justifyContent="flex-start" space="$2">
+              <CountrySelect
+                value={phoneCode}
                 width="18%"
-                name="isocode"
-                textAlign="center"
-                control={control}
+                label="Choisir un pays"
+                onValueChange={setPhoneCode}
+                type="phone"
               />
-              <Input
-                keyboardType="numeric"
-                name="phonenumber"
-                width="80%"
-                control={control}
-                rules={{
-                  required: 'Numéro de téléphone est obligatoire',
-                }}
-              />
+              <YStack width="80%">
+                <Input
+                  keyboardType="numeric"
+                  name="phonenumber"
+                  control={control}
+                  rules={{
+                    required: 'Numéro de téléphone est obligatoire',
+                  }}
+                />
+              </YStack>
             </XStack>
           </YStack>
           <YStack mt={10}>
@@ -186,17 +188,11 @@ export default function Page() {
               }}
             />
           </YStack>
-          <XStack justifyContent="center" mb={10} alignItems="center" flexWrap="wrap" gap="$2">
-            <SizableText color="$gray12">Vous avez deja un compte ?</SizableText>
-            <Link href={{ pathname: '/account/sign-in' }} asChild>
-              <SizableText fontWeight="700">Se connecter</SizableText>
-            </Link>
-          </XStack>
           <Button
             onPress={handleSubmit(onSubmit)}
-            loading={mutationCreateCustomer.isPending || mutationCreateAccessToken.isPending}
-            disabled={mutationCreateCustomer.isPending || mutationCreateAccessToken.isPending}>
-            S'inscrire
+            loading={mutationUpdateCustomer.isPending}
+            disabled={mutationUpdateCustomer.isPending}>
+            Editer
           </Button>
         </ScrollView>
       </Container>

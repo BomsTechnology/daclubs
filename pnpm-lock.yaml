@@ -89,6 +89,9 @@ dependencies:
   jotai:
     specifier: ^2.7.1
     version: 2.7.1(@types/react@18.2.69)(react@18.2.0)
+  libphonenumber-js:
+    specifier: ^1.11.1
+    version: 1.11.1
   react:
     specifier: 18.2.0
     version: 18.2.0
@@ -7787,6 +7790,10 @@ packages:
       prelude-ls: 1.2.1
       type-check: 0.4.0
     dev: true
+
+  /libphonenumber-js@1.11.1:
+    resolution: {integrity: sha512-Wze1LPwcnzvcKGcRHFGFECTaLzxOtujwpf924difr5zniyYv1C2PiW0419qDR7m8lKDxsImu5mwxFuXhXpjmvw==}
+    dev: false
 
   /lighthouse-logger@1.4.2:
     resolution: {integrity: sha512-gPWxznF6TKmUHrOQjlVo2UbaL2EJ71mb2CCeRs/2qBpi4L/g4LUVc9+3lKQ6DTUZwJswfM7ainGrLO1+fOqa2g==}

@@ -1,5 +1,5 @@
 import CustomError from '../types/CustomError';
-import { CustomerAccessTokenProps, CustomerProps } from '../types/CustomerProps';
+import { AddressProps, CustomerAccessTokenProps, CustomerProps } from '../types/CustomerProps';
 import client from '../utils/shopify';
 
 export interface CustomerCreateInput {
@@ -14,6 +14,19 @@ export interface CustomerCreateInput {
 export interface CustomerAccessTokenCreateInput {
   email: string;
   password: string;
+}
+
+export interface MailingAddressInput {
+  address1: string;
+  address2: string;
+  city: string;
+  company: string;
+  country: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  province: string;
+  zip: string;
 }
 
 const customerQuery = `
@@ -283,6 +296,85 @@ export const createCustomer = async (props: CustomerCreateInput): Promise<Custom
   return data.customerCreate.customer;
 };
 
+export const updateCustomer = async ({
+  props,
+  token,
+}: {
+  props: CustomerCreateInput;
+  token: string;
+}): Promise<{
+  customer: CustomerProps;
+  customerAccessToken: CustomerAccessTokenProps;
+}> => {
+  const updateCustomerMutation = `
+    mutation customerUpdate($customer: CustomerUpdateInput!, $customerAccessToken: String!) {
+        customerUpdate(customer: $customer, customerAccessToken: $customerAccessToken) {
+        customer {
+          ${customerQuery}
+        }
+        customerAccessToken {
+            accessToken
+            expiresAt
+          }
+        customerUserErrors {
+          field
+          message
+          code
+        }
+      }
+    }
+      `;
+  const { data, errors } = await client.request(updateCustomerMutation, {
+    variables: {
+      customer: props,
+      customerAccessToken: token,
+    },
+  });
+  if (errors) {
+    throw new CustomError(
+      errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
+      errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
+    );
+  }
+  if (data.customerUpdate.customerUserErrors.length > 0) {
+    const graphQLError = data.customerUpdate.customerUserErrors[0];
+    throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
+  }
+  return {
+    customer: data.customerUpdate.customer,
+    customerAccessToken: data.customerUpdate.customerAccessToken,
+  };
+};
+
+export const recoverCustomer = async (email: string): Promise<void> => {
+  const recoverCustomerMutation = `
+  mutation customerRecover($email: String!) {
+    customerRecover(email: $email) {
+      customerUserErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+    `;
+  const { data, errors } = await client.request(recoverCustomerMutation, {
+    variables: {
+      email,
+    },
+  });
+  if (errors) {
+    throw new CustomError(
+      errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
+      errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
+    );
+  }
+  if (data.customerRecover.customerUserErrors.length > 0) {
+    const graphQLError = data.customerRecover.customerUserErrors[0];
+    throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
+  }
+};
+
 export const createAccessToken = async (
   props: CustomerAccessTokenCreateInput
 ): Promise<CustomerAccessTokenProps> => {
@@ -337,7 +429,6 @@ export const deleteAccessToken = async (token: string): Promise<void> => {
     },
   });
   if (errors) {
-    console.log(errors);
     throw new CustomError(
       errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
       errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
@@ -348,6 +439,39 @@ export const deleteAccessToken = async (token: string): Promise<void> => {
     console.log(graphQLError);
     throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
   }
+};
+
+export const refreshToken = async (token: string): Promise<CustomerAccessTokenProps> => {
+  const refreshTokenMutation = `
+  mutation customerAccessTokenRenew($customerAccessToken: String!) {
+    customerAccessTokenRenew(customerAccessToken: $customerAccessToken) {
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+    `;
+  const { data, errors } = await client.request(refreshTokenMutation, {
+    variables: {
+      customerAccessToken: token,
+    },
+  });
+  if (errors) {
+    throw new CustomError(
+      errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
+      errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
+    );
+  }
+  if (data.customerAccessTokenRenew.userErrors.length > 0) {
+    const graphQLError = data.customerAccessTokenRenew.userErrors[0];
+    throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
+  }
+  return data.customerAccessTokenRenew.customerAccessToken;
 };
 
 export const getCustomer = async (token: string): Promise<CustomerProps> => {
@@ -365,6 +489,64 @@ export const getCustomer = async (token: string): Promise<CustomerProps> => {
   });
   if (errors) throw errors;
   return data.customer;
+};
+
+export const createCustomerAdress = async ({
+  props,
+  token,
+}: {
+  props: MailingAddressInput;
+  token: string;
+}): Promise<AddressProps> => {
+  const createCustomerAdressMutation = `
+  mutation customerAddressCreate($address: MailingAddressInput!, $customerAccessToken: String!) {
+    customerAddressCreate(address: $address, customerAccessToken: $customerAccessToken) {
+      customerAddress {
+        address1
+        address2
+        city
+        company
+        country
+        countryCode
+        countryCodeV2
+        firstName
+        formatted(withCompany: true, withName: true)
+        formattedArea
+        id
+        lastName
+        latitude
+        longitude
+        name
+        phone
+        province
+        provinceCode
+        zip
+      }
+      customerUserErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+    `;
+  const { data, errors } = await client.request(createCustomerAdressMutation, {
+    variables: {
+      address: props,
+      customerAccessToken: token,
+    },
+  });
+  if (errors) {
+    throw new CustomError(
+      errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
+      errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
+    );
+  }
+  if (data.customerAddressCreate.customerUserErrors.length > 0) {
+    const graphQLError = data.customerAddressCreate.customerUserErrors[0];
+    throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
+  }
+  return data.customerAddressCreate.customerAddress;
 };
 
 function getErrorMessage(error: any) {

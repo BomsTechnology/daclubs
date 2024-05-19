@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { Link, router } from 'expo-router';
 import { useAtom } from 'jotai';
+import { useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { SizableText, YStack, ScrollView, XStack } from 'tamagui';
 
@@ -11,6 +12,7 @@ import {
   CustomerAccessTokenCreateInput,
 } from '~/src/api/customer';
 import Button from '~/src/components/form/Button';
+import CountrySelect from '~/src/components/form/CountrySelect';
 import Input from '~/src/components/form/Input';
 import CustomHeader from '~/src/components/header/CustomHeader';
 import useShowNotification from '~/src/hooks/useShowNotification';
@@ -20,13 +22,9 @@ import { Container } from '~/tamagui.config';
 
 export default function Page() {
   const [, setToken] = useAtom(tokenWithStorage);
+  const [phoneCode, setPhoneCode] = useState('+33');
   const { showMessage } = useShowNotification();
-  const { control, handleSubmit, setError } = useForm<FieldValues>({
-    defaultValues: {
-      isocode: '+33',
-      phonenumber: '',
-    },
-  });
+  const { control, handleSubmit, setError } = useForm<FieldValues>();
 
   const mutationCreateCustomer = useMutation({
     mutationFn: (input: CustomerCreateInput) => createCustomer(input),
@@ -57,7 +55,7 @@ export default function Page() {
   });
 
   const onSubmit = (data: FieldValues) => {
-    if (!data.isocode) {
+    if (!phoneCode) {
       setError('phonenumber', {
         type: 'manual',
         message: 'Le code pays est obligatoire',
@@ -76,7 +74,7 @@ export default function Page() {
       lastName: data.lastname,
       acceptsMarketing: true,
       email: data.email,
-      phone: `${data.isocode}${data.phonenumber}`,
+      phone: `${phoneCode}${data.phonenumber}`,
       password: data.password,
     });
   };
@@ -113,24 +111,24 @@ export default function Page() {
             <SizableText mb={10} fontWeight="700">
               Numéro de téléphone
             </SizableText>
-            <XStack alignItems="center" justifyContent="flex-start" space="$2">
-              <Input
-                maxLength={5}
-                keyboardType="numeric"
+            <XStack alignItems="flex-start" justifyContent="flex-start" space="$2">
+              <CountrySelect
+                value={phoneCode}
                 width="18%"
-                name="isocode"
-                textAlign="center"
-                control={control}
+                label="Choisir un pays"
+                onValueChange={setPhoneCode}
+                type="phone"
               />
-              <Input
-                keyboardType="numeric"
-                name="phonenumber"
-                width="80%"
-                control={control}
-                rules={{
-                  required: 'Numéro de téléphone est obligatoire',
-                }}
-              />
+              <YStack width="80%">
+                <Input
+                  keyboardType="numeric"
+                  name="phonenumber"
+                  control={control}
+                  rules={{
+                    required: 'Numéro de téléphone est obligatoire',
+                  }}
+                />
+              </YStack>
             </XStack>
           </YStack>
           <YStack mt={10}>

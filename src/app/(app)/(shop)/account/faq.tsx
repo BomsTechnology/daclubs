@@ -1,12 +1,13 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import CustomHeader from '~/src/components/header/CustomHeader';
+import { Container } from '~/tamagui.config';
 
 const FaqPage = () => {
   return (
-    <View>
-      <Text>FaqPage</Text>
-    </View>
-  )
-}
+    <>
+      <CustomHeader title="FAQ" />
+      <Container></Container>
+    </>
+  );
+};
 
-export default FaqPage
+export default FaqPage;

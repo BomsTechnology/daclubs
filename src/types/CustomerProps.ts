@@ -21,7 +21,7 @@ export interface LineItemProps {
   }[];
 }
 
-export interface AdressProps {
+export interface AddressProps {
   id: string;
   city?: string;
   company?: string;
@@ -54,7 +54,7 @@ export interface OrderProps {
   customerLocale: string;
   canceledAt: Date;
   currencyCode: string;
-  billingAddress: AdressProps;
+  billingAddress: AddressProps;
   currentSubtotalPrice: PriceProps;
   currentTotalDuties: PriceProps;
   currentTotalPrice: PriceProps;
@@ -68,7 +68,7 @@ export interface OrderProps {
   orderNumber: number;
   statusUrl: string;
   subtotalPrice: PriceProps;
-  shippingAddress: AdressProps;
+  shippingAddress: AddressProps;
   totalRefundedV2?: PriceProps;
   totalPrice: PriceProps;
   subtotalPriceV2?: PriceProps;
@@ -104,7 +104,7 @@ export interface MainCustomerProps {
   firstName?: string;
   lastName?: string;
   phone?: string;
-  defaultAddress?: AdressProps;
+  defaultAddress?: AddressProps;
   numberOfOrders?: number;
 }
 
@@ -112,7 +112,7 @@ export interface CustomerProps extends MainCustomerProps {
   addresses?: {
     edges: {
       cursor: string;
-      node: AdressProps;
+      node: AddressProps;
     }[];
   };
   orders?: {

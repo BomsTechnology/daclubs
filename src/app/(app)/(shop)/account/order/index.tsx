@@ -1,12 +1,13 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import CustomHeader from '~/src/components/header/CustomHeader';
+import { Container } from '~/tamagui.config';
 
-const OrderPage = () => {
+const Page = () => {
   return (
-    <View>
-      <Text>OrderPage</Text>
-    </View>
+    <>
+      <CustomHeader title="Mes commandes" />
+      <Container></Container>
+    </>
   )
 }
 
-export default OrderPage
+export default Page;

@@ -1,6 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { Button, XStack, YStack } from 'tamagui';
+import { Button, SizableText, XStack, YStack } from 'tamagui';
 
 const OnboardingFooter = ({
   nbItems,
@@ -22,7 +22,7 @@ const OnboardingFooter = ({
         ))}
       </XStack>
       <Button borderRadius={0} onPress={actionBtn}>
-        Suivant
+        <SizableText fontWeight="700">Suivant</SizableText>
       </Button>
     </YStack>
   );

@@ -72,6 +72,11 @@ export default function Page() {
                 required: 'Mot de passe obligatoire',
               }}
             />
+            <XStack justifyContent="flex-end" mt={10}>
+              <Link href={{ pathname: '/account/recover' }} asChild>
+                <SizableText fontWeight="700">Mot de passe oublie ?</SizableText>
+              </Link>
+            </XStack>
           </YStack>
           <XStack justifyContent="center" mb={10} alignItems="center" flexWrap="wrap" gap="$2">
             <SizableText color="$gray12">Pas encore de compte ?</SizableText>

@@ -15,7 +15,7 @@ import CustomError from '~/src/types/CustomError';
 import { queryClient } from '~/src/utils/queryClient';
 import { tokenWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
-const AddAdressPage = () => {
+const Page = () => {
   const { tokenRefresh } = useRefreshToken();
   const [token] = useAtom(tokenWithStorage);
   const { showMessage } = useShowNotification();
@@ -74,7 +74,7 @@ const AddAdressPage = () => {
   };
   return (
     <>
-      <CustomHeader title="Ajouter une nouvelle adresse" />
+      <CustomHeader title="Editer une  adresse" />
       <Container p={0}>
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -203,4 +203,4 @@ const AddAdressPage = () => {
   );
 };
 
-export default AddAdressPage;
+export default Page;
