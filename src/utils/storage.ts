@@ -1,6 +1,7 @@
 import { atom } from 'jotai';
 
 import { atomWithMMKV } from './atomWithMMKV';
+import CheckoutProps from '../types/CheckoutProps';
 import { CustomerAccessTokenProps, CustomerProps } from '../types/CustomerProps';
 import { ProductCartProps, MainProductProps } from '../types/ProductProps';
 import SettingProps from '../types/SettingProps';
@@ -21,3 +22,5 @@ export const customerAtom = atom<{
 export const tokenWithStorage = atomWithMMKV<{
   token?: CustomerAccessTokenProps;
 }>('token', {});
+
+export const checkoutWithStorage = atomWithMMKV<CheckoutProps | undefined>('checkout', undefined);

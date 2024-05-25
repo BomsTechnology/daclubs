@@ -29,19 +29,7 @@ export interface MailingAddressInput {
   zip: string;
 }
 
-const customerQuery = `
-        acceptsMarketing
-        createdAt
-        displayName
-        email
-        firstName
-        id
-        lastName
-        numberOfOrders
-        phone
-        tags
-        updatedAt
-        defaultAddress {
+const adressQuery = `
             address1
             address2
             city
@@ -59,31 +47,28 @@ const customerQuery = `
             phone
             province
             provinceCode
-            zip
+            zip`;
+
+const customerQuery = `
+        acceptsMarketing
+        createdAt
+        displayName
+        email
+        firstName
+        id
+        lastName
+        numberOfOrders
+        phone
+        tags
+        updatedAt
+        defaultAddress {
+            ${adressQuery}
         }
         addresses(first: 50) {
             edges {
               cursor
               node {
-                address1
-                address2
-                city
-                company
-                country
-                countryCode
-                countryCodeV2
-                firstName
-                formatted(withCompany: true, withName: true)
-                formattedArea
-                id
-                lastName
-                latitude
-                longitude
-                name
-                phone
-                province
-                provinceCode
-                zip
+                ${adressQuery}
               }
             }
         }
@@ -158,22 +143,7 @@ const customerQuery = `
                     amount
                   }
                   shippingAddress {
-                    address1
-                    address2
-                    city
-                    company
-                    country
-                    countryCodeV2
-                    firstName
-                    formatted(withCompany: true, withName: true)
-                    formattedArea
-                    id
-                    lastName
-                    latitude
-                    longitude
-                    name
-                    phone
-                    province
+                    ${adressQuery}
                   }
                   processedAt
                   orderNumber
@@ -219,24 +189,7 @@ const customerQuery = `
                   id
                   statusUrl
                   billingAddress {
-                    address1
-                    address2
-                    city
-                    company
-                    country
-                    countryCodeV2
-                    firstName
-                    formatted(withCompany: true, withName: true)
-                    formattedArea
-                    id
-                    lastName
-                    latitude
-                    longitude
-                    name
-                    phone
-                    province
-                    provinceCode
-                    zip
+                    ${adressQuery}
                   }
                   currentSubtotalPrice {
                     amount
@@ -502,25 +455,7 @@ export const createCustomerAdress = async ({
   mutation customerAddressCreate($address: MailingAddressInput!, $customerAccessToken: String!) {
     customerAddressCreate(address: $address, customerAccessToken: $customerAccessToken) {
       customerAddress {
-        address1
-        address2
-        city
-        company
-        country
-        countryCode
-        countryCodeV2
-        firstName
-        formatted(withCompany: true, withName: true)
-        formattedArea
-        id
-        lastName
-        latitude
-        longitude
-        name
-        phone
-        province
-        provinceCode
-        zip
+        ${adressQuery}
       }
       customerUserErrors {
         field
@@ -549,6 +484,126 @@ export const createCustomerAdress = async ({
   return data.customerAddressCreate.customerAddress;
 };
 
+export const deleteCustomerAdress = async ({
+  token,
+  id,
+}: {
+  token: string;
+  id: string;
+}): Promise<void> => {
+  const deleteCustomerAdressMutation = `
+  mutation customerAddressDelete($customerAccessToken: String!, $id: ID!) {
+    customerAddressDelete(customerAccessToken: $customerAccessToken, id: $id) {
+      customerUserErrors {
+        field
+        message
+        code
+      }
+      deletedCustomerAddressId
+    }
+  }
+    `;
+  const { data, errors } = await client.request(deleteCustomerAdressMutation, {
+    variables: {
+      customerAccessToken: token,
+      id,
+    },
+  });
+  if (errors) {
+    throw new CustomError(
+      errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
+      errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
+    );
+  }
+  if (data.customerAddressDelete.customerUserErrors.length > 0) {
+    const graphQLError = data.customerAddressDelete.customerUserErrors[0];
+    throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
+  }
+};
+
+export const updateCustomerAdress = async ({
+  props,
+  token,
+  id,
+}: {
+  props: MailingAddressInput;
+  token: string;
+  id: string;
+}): Promise<AddressProps> => {
+  const updateCustomerAdressMutation = `
+  mutation customerAddressUpdate($address: MailingAddressInput!, $customerAccessToken: String!, $id: ID!) {
+    customerAddressUpdate(address: $address, customerAccessToken: $customerAccessToken, id: $id) {
+      customerAddress {
+        ${adressQuery}
+      }
+      customerUserErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+    `;
+  const { data, errors } = await client.request(updateCustomerAdressMutation, {
+    variables: {
+      address: props,
+      customerAccessToken: token,
+      id,
+    },
+  });
+  if (errors) {
+    throw new CustomError(
+      errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
+      errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
+    );
+  }
+  if (data.customerAddressUpdate.customerUserErrors.length > 0) {
+    const graphQLError = data.customerAddressUpdate.customerUserErrors[0];
+    throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
+  }
+  return data.customerAddressUpdate.customerAddress;
+};
+
+export const defaultCustomerAddress = async ({
+  id,
+  token,
+}: {
+  id: string;
+  token: string;
+}): Promise<CustomerProps> => {
+  const defaultCustomerAddressMutation = `
+  mutation customerDefaultAddressUpdate($addressId: ID!, $customerAccessToken: String!) {
+    customerDefaultAddressUpdate(addressId: $addressId, customerAccessToken: $customerAccessToken) {
+      customer {
+        ${customerQuery}
+      }
+      customerUserErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+    `;
+  const { data, errors } = await client.request(defaultCustomerAddressMutation, {
+    variables: {
+      addressId: id,
+      customerAccessToken: token,
+    },
+  });
+  if (errors) {
+    throw new CustomError(
+      errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
+      errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
+    );
+  }
+  if (data.customerDefaultAddressUpdate.customerUserErrors.length > 0) {
+    const graphQLError = data.customerDefaultAddressUpdate.customerUserErrors[0];
+    throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
+  }
+  return data.customerDefaultAddressUpdate.customer;
+};
+
 function getErrorMessage(error: any) {
   switch (error.code) {
     case 'ALREADY_ENABLED':
@@ -556,7 +611,7 @@ function getErrorMessage(error: any) {
     case 'BAD_DOMAIN':
       return "L'e-mail ou le mot de passe saisi contient un nom de domaine invalide.";
     case 'BLANK':
-      return "L'e-mail ou le mot de passe saisi est vide.";
+      return "La valeur d'entrée est vide.";
     case 'CUSTOMER_DISABLED':
       return 'Votre compte est désactivé';
     case 'CONTAINS_HTML_TAGS':
@@ -564,7 +619,7 @@ function getErrorMessage(error: any) {
     case 'CONTAINS_URL':
       return "L'e-mail ou le mot de passe saisi contient une URL.";
     case 'INVALID':
-      return "L'e-mail, numéro(Ex: +33xxxxxxx) ou le mot de passe saisi est invalide(votre mot de passe doit être fort).";
+      return "La valeur saisie n'est pas valide.";
     case 'INVALID_MULTIPASS_REQUEST':
       return 'Une erreur est survenue, veillez ressayer.';
     case 'NOT_FOUND':
@@ -572,7 +627,7 @@ function getErrorMessage(error: any) {
     case 'PASSWORD_STARTS_OR_ENDS_WITH_WHITESPACE':
       return 'Le mot de passe saisi commence ou se termine par un espace.';
     case 'TAKEN':
-      return 'Ce compte existe déjà.';
+      return 'La valeur entrée existe déjà.';
     case 'TOKEN_INVALID':
       return 'Une erreur est survenue, veillez ressayer.';
     case 'TOO_LONG':

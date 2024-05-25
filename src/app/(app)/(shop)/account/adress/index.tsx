@@ -1,16 +1,56 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useMutation } from '@tanstack/react-query';
 import { Link } from 'expo-router';
 import { useAtom } from 'jotai';
 import { FlatList } from 'react-native';
 import { Button, SizableText } from 'tamagui';
 
+import { deleteCustomerAdress } from '~/src/api/customer';
 import AdressCard from '~/src/components/card/AddressCard';
 import CustomHeader from '~/src/components/header/CustomHeader';
-import { customerAtom } from '~/src/utils/storage';
+import useRefreshToken from '~/src/hooks/useRefreshToken';
+import useShowNotification from '~/src/hooks/useShowNotification';
+import CustomError from '~/src/types/CustomError';
+import { customerAtom, tokenWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
 const AdressPage = () => {
-  const [customer] = useAtom(customerAtom);
+  const { showMessage } = useShowNotification();
+  const { tokenRefresh } = useRefreshToken();
+  const [token] = useAtom(tokenWithStorage);
+  const [customer, setCustomer] = useAtom(customerAtom);
+
+  const mutationDeleteCustomerAdress = useMutation({
+    mutationFn: (id: string) =>
+      deleteCustomerAdress({
+        token: token.token?.accessToken!,
+        id,
+      }),
+    onSuccess(data, variables, context) {
+      setCustomer({
+        customer: {
+          ...customer?.customer!,
+          addresses: {
+            ...customer?.customer?.addresses,
+            edges: customer?.customer?.addresses?.edges.filter(
+              (edge) => edge.node.id !== variables
+            )!,
+          },
+        },
+      });
+      showMessage('Adresse supprimée', 'success');
+    },
+    onError: (error: CustomError, variables, context) => {
+      if (error.code === 'TOKEN_INVALID' || error.code === 'INVALID_MULTIPASS_REQUEST') {
+        tokenRefresh.mutate();
+        showMessage('Veillez patienter...', 'normal');
+        mutationDeleteCustomerAdress.mutate(variables);
+      } else {
+        showMessage(error.message || 'Une erreur est survenue');
+      }
+    },
+  });
+
   return (
     <>
       <CustomHeader title="Mes adresses" />
@@ -21,9 +61,9 @@ const AdressPage = () => {
             <AdressCard
               {...item.node}
               isDefault={item.node.id === customer.customer?.defaultAddress?.id}
+              onDelete={() => mutationDeleteCustomerAdress.mutate(item.node.id)}
             />
           )}
-          extraData={[customer.customer?.defaultAddress]}
         />
         <Link href="/account/adress/add" asChild>
           <Button

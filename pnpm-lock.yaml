@@ -26,6 +26,9 @@ dependencies:
   '@shopify/admin-api-client':
     specifier: ^0.2.9
     version: 0.2.9
+  '@shopify/checkout-sheet-kit':
+    specifier: ^3.0.0
+    version: 3.0.0(react-native@0.73.6)(react@18.2.0)
   '@shopify/flash-list':
     specifier: 1.6.3
     version: 1.6.3(@babel/runtime@7.24.1)(react-native@0.73.6)(react@18.2.0)
@@ -3087,6 +3090,16 @@ packages:
     resolution: {integrity: sha512-0K/P6e4bofCyk5BQ1OCiw9bq2d2hlxHM3B8FQEQclyMyU/b3oMowhy56sOQQODViaiZoDH/atmeWJwOX1di0Qg==}
     dependencies:
       '@shopify/graphql-client': 0.10.4
+    dev: false
+
+  /@shopify/checkout-sheet-kit@3.0.0(react-native@0.73.6)(react@18.2.0):
+    resolution: {integrity: sha512-17omok3HM2FI9/dO/byNFawfBHx3Fdts6nRtZCngpG5Kn/VkM9xF0hCv9sYGSKJE+K2EtcFal99FNUBrGGk5Ug==}
+    peerDependencies:
+      react: '*'
+      react-native: '*'
+    dependencies:
+      react: 18.2.0
+      react-native: 0.73.6(@babel/core@7.24.3)(@babel/preset-env@7.24.3)(react@18.2.0)
     dev: false
 
   /@shopify/flash-list@1.6.3(@babel/runtime@7.24.1)(react-native@0.73.6)(react@18.2.0):

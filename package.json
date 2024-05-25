@@ -15,6 +15,7 @@
     "@react-navigation/drawer": "^6.6.15",
     "@react-navigation/native": "^6.1.7",
     "@shopify/admin-api-client": "^0.2.9",
+    "@shopify/checkout-sheet-kit": "^3.0.0",
     "@shopify/flash-list": "1.6.3",
     "@shopify/storefront-api-client": "^0.3.4",
     "@tamagui/font-inter": "1.74.8",

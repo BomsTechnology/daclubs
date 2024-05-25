@@ -1,13 +1,12 @@
+import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useRef, useState } from 'react';
 import { ImageBackground } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import PagerView from 'react-native-pager-view';
-import { YStack } from 'tamagui';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import OnboardingFooter from '../components/onboarding/OnboardingFooter';
 import OnboardingItem from '../components/onboarding/OnboardingItem';
-import { useRef, useState } from 'react';
-import { router } from 'expo-router';
 
 const items = [
   {
@@ -41,6 +40,7 @@ export default function Page() {
       router.replace('/(app)/(shop)/home/');
     }
   };
+
   return (
     <ImageBackground source={require('~/assets/images/onboardbackground.png')} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>

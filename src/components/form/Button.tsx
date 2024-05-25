@@ -2,6 +2,7 @@ import { Button as TamaguiButton, ButtonProps, Spinner, SizableText } from 'tama
 
 type CustomButtomProps = ButtonProps & {
   loading?: boolean;
+  customIcon?: JSX.Element;
 };
 
 const Button = (props: CustomButtomProps) => {
@@ -10,9 +11,12 @@ const Button = (props: CustomButtomProps) => {
       {props.loading && props.loading === true ? (
         <Spinner color="#fff" />
       ) : (
-        <SizableText fontWeight="700" color="#fff">
-          {props.children}
-        </SizableText>
+        <>
+          {props.customIcon}
+          <SizableText fontWeight="700" color="#fff">
+            {props.children}
+          </SizableText>
+        </>
       )}
     </TamaguiButton>
   );

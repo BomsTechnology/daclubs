@@ -10,6 +10,7 @@ import {
   Raleway_900Black,
   useFonts,
 } from '@expo-google-fonts/raleway';
+import { ShopifyCheckoutSheetProvider } from '@shopify/checkout-sheet-kit';
 import { QueryClientProvider } from '@tanstack/react-query';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -58,8 +59,10 @@ export default function Root() {
               offsetTop={50}
               swipeEnabled
               textStyle={{ fontFamily: 'RalewayRegular', textAlign: 'center' }}>
-              <Roostack />
-              <StatusBar style="auto" />
+              <ShopifyCheckoutSheetProvider>
+                <Roostack />
+                <StatusBar style="auto" />
+              </ShopifyCheckoutSheetProvider>
             </ToastProvider>
           </QueryClientProvider>
         </GestureHandlerRootView>

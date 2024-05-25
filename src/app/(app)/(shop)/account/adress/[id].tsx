@@ -1,10 +1,16 @@
 import { useMutation } from '@tanstack/react-query';
+import { useLocalSearchParams } from 'expo-router';
 import { useAtom } from 'jotai';
+import parsePhoneNumberFromString from 'libphonenumber-js';
 import { useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { ScrollView, SizableText, XStack, YStack } from 'tamagui';
 
-import { createCustomerAdress, MailingAddressInput } from '~/src/api/customer';
+import {
+  updateCustomerAdress,
+  MailingAddressInput,
+  defaultCustomerAddress,
+} from '~/src/api/customer';
 import Button from '~/src/components/form/Button';
 import CountrySelect from '~/src/components/form/CountrySelect';
 import Input from '~/src/components/form/Input';
@@ -13,31 +19,93 @@ import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import CustomError from '~/src/types/CustomError';
 import { queryClient } from '~/src/utils/queryClient';
-import { tokenWithStorage } from '~/src/utils/storage';
+import { customerAtom, tokenWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 const Page = () => {
+  const { id } = useLocalSearchParams();
   const { tokenRefresh } = useRefreshToken();
   const [token] = useAtom(tokenWithStorage);
+  const [customer, setCustomer] = useAtom(customerAtom);
   const { showMessage } = useShowNotification();
-  const { control, handleSubmit, setError } = useForm();
-  const [country, setCountry] = useState('France');
-  const [phoneCode, setPhoneCode] = useState('+33');
 
-  const mutationCreateCustomerAdress = useMutation({
+  const address = customer?.customer?.addresses?.edges.filter(
+    (address) => address.node.id === id
+  )[0];
+
+  const [country, setCountry] = useState(address?.node.country || 'France');
+  const parsedNumber = parsePhoneNumberFromString(address?.node?.phone! || '+33');
+  const [phoneCode, setPhoneCode] = useState('+' + parsedNumber?.countryCallingCode);
+
+  const { control, handleSubmit, setError } = useForm<FieldValues>({
+    defaultValues: {
+      phonenumber: parsedNumber?.nationalNumber,
+      firstname: address?.node?.firstName,
+      lastname: address?.node?.lastName,
+      address1: address?.node?.address1,
+      address2: address?.node?.address2,
+      city: address?.node?.city,
+      province: address?.node?.province,
+      zip: address?.node?.zip,
+      company: address?.node?.company,
+    },
+  });
+
+  const mutationUpdateCustomerAdress = useMutation({
     mutationFn: (input: MailingAddressInput) =>
-      createCustomerAdress({
+      updateCustomerAdress({
         token: token.token?.accessToken!,
         props: input,
+        id: id as string,
       }),
     onSuccess(data, variables, context) {
-      queryClient.invalidateQueries({ queryKey: ['customer', token.token?.accessToken] });
-      showMessage('Adresse ajouté', 'success');
+      setCustomer({
+        customer: {
+          ...customer?.customer!,
+          addresses: {
+            ...customer?.customer?.addresses,
+            edges: customer?.customer?.addresses?.edges.map((edge) => {
+              if (edge.node.id === id) {
+                return {
+                  ...edge,
+                  node: data,
+                };
+              }
+              return edge;
+            })!,
+          },
+        },
+      });
+      //queryClient.invalidateQueries({ queryKey: ['customer', token.token?.accessToken] });
+      showMessage('Adresse mis a jour', 'success');
     },
     onError: (error: CustomError, variables, context) => {
       if (error.code === 'TOKEN_INVALID' || error.code === 'INVALID_MULTIPASS_REQUEST') {
         tokenRefresh.mutate();
         showMessage('Veillez patienter...', 'normal');
-        mutationCreateCustomerAdress.mutate(variables);
+        mutationUpdateCustomerAdress.mutate(variables);
+      } else {
+        showMessage(error.message || 'Une erreur est survenue');
+      }
+    },
+  });
+
+  const mutationDefaultCustomerAdress = useMutation({
+    mutationFn: () =>
+      defaultCustomerAddress({
+        token: token.token?.accessToken!,
+        id: id as string,
+      }),
+    onSuccess(data, variables, context) {
+      setCustomer({
+        customer: data,
+      });
+      showMessage('Adresse définie comme defaut', 'success');
+    },
+    onError: (error: CustomError, variables, context) => {
+      if (error.code === 'TOKEN_INVALID' || error.code === 'INVALID_MULTIPASS_REQUEST') {
+        tokenRefresh.mutate();
+        showMessage('Veillez patienter...', 'normal');
+        mutationDefaultCustomerAdress.mutate();
       } else {
         showMessage(error.message || 'Une erreur est survenue');
       }
@@ -59,7 +127,7 @@ const Page = () => {
       });
       return;
     }
-    mutationCreateCustomerAdress.mutate({
+    mutationUpdateCustomerAdress.mutate({
       firstName: data.firstname,
       lastName: data.lastname,
       phone: `${phoneCode}${data.phonenumber}`,
@@ -193,9 +261,20 @@ const Page = () => {
         <YStack gap={10} bg="#fff" w="100%" p={20}>
           <Button
             onPress={handleSubmit(onSubmit)}
-            loading={mutationCreateCustomerAdress.isPending}
-            disabled={mutationCreateCustomerAdress.isPending}>
+            loading={mutationUpdateCustomerAdress.isPending}
+            disabled={
+              mutationUpdateCustomerAdress.isPending || mutationDefaultCustomerAdress.isPending
+            }>
             Enregistrer
+          </Button>
+          <Button
+            bg="#0019FF"
+            onPress={() => mutationDefaultCustomerAdress.mutate()}
+            loading={mutationDefaultCustomerAdress.isPending}
+            disabled={
+              mutationDefaultCustomerAdress.isPending || mutationUpdateCustomerAdress.isPending
+            }>
+            Definir par defaut
           </Button>
         </YStack>
       </Container>
