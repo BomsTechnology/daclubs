@@ -43,7 +43,6 @@ const Page = () => {
       }),
     onSuccess(checkout, variables, context) {
       setCheckout(checkout);
-      shopifyCheckout.preload(checkout?.checkoutUrl);
     },
     onError: (error) => {
       showMessage(error.message || 'Une erreur est survenue');
@@ -58,7 +57,6 @@ const Page = () => {
       }),
     onSuccess(checkout, variables, context) {
       setCheckout(checkout);
-      shopifyCheckout.preload(checkout?.checkoutUrl);
     },
     onError: (error) => {
       showMessage(error.message || 'Une erreur est survenue');
@@ -168,7 +166,7 @@ const Page = () => {
       }
       shopifyCheckout.present(checkout?.checkoutUrl);
     }
-  }, []);
+  }, [checkout, mutationUpdateLineCart.isPending, mutationRemoveLineCart.isPending]);
 
   return (
     <>
@@ -217,7 +215,16 @@ const Page = () => {
           </XStack>
         </>
       ) : (
-        <EmptyScreen message="Votre panier est vide" />
+        <>
+          <EmptyScreen message="Votre panier est vide" />
+          <Button
+            onPress={() => {
+              setCart(RESET);
+              setCheckout(RESET);
+            }}>
+            Reset
+          </Button>
+        </>
       )}
     </>
   );

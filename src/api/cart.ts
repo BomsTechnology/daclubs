@@ -334,7 +334,7 @@ export const removeLineCart = async ({
       lineIds,
     },
   });
-  if (errors) {
+  if (errors && errors.networkStatusCode !== 200) {
     throw new CustomError(
       errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
       errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
@@ -353,7 +353,7 @@ export const updateBuyerIdentityCart = async ({
 }: {
   buyerIdentity?: CartBuyerIdentityInput;
   cartId: string;
-}): Promise<CheckoutProps> => {
+}): Promise<void> => {
   const createCartMutation = `
   mutation updateCartBuyerIdentity($buyerIdentity: CartBuyerIdentityInput!, $cartId: ID!) {
     cartBuyerIdentityUpdate(buyerIdentity: $buyerIdentity, cartId: $cartId) {
@@ -374,17 +374,16 @@ export const updateBuyerIdentityCart = async ({
       cartId,
     },
   });
-  if (errors) {
+  if (errors && errors.networkStatusCode !== 200) {
     throw new CustomError(
       errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
       errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
     );
   }
-  if (data.cartBuyerIdentityUpdate.userErrors.length > 0) {
+  if (data && data.cartBuyerIdentityUpdate.userErrors.length > 0) {
     const graphQLError = data.cartBuyerIdentityUpdate.userErrors[0];
     throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
   }
-  return data.cartBuyerIdentityUpdate.cart;
 };
 
 function getErrorMessage(error: any) {

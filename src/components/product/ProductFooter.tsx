@@ -31,7 +31,6 @@ const ProductFooter = ({
   setWishlistItem: (item: MainProductProps) => void;
 }) => {
   const { showMessage } = useShowNotification();
-  const { customerAddresses, customerDeliveryPreferences } = useUpdateBuyerIdentity();
   const [customer] = useAtom(customerAtom);
   const [token] = useAtom(tokenWithStorage);
   const [cart, setCart] = useAtom(cartWithStorage);
@@ -51,7 +50,7 @@ const ProductFooter = ({
         cartId: checkout?.id!,
       }),
     onSuccess(checkout, variables, context) {
-      setCheckout(checkout);
+      if (checkout) setCheckout(checkout);
       setCart((prev) => [...prev, { product: data!, variant: selectedVariant!, quantity: 1 }]);
       showMessage('Ajouté au panier', 'success');
       setTimeout(() => router.push('/cart'), 1000);
@@ -82,8 +81,26 @@ const ProductFooter = ({
         ],
         cartId: checkout?.id!,
       }),
-    onSuccess(checkout, variables, context) {
-      setCheckout(checkout);
+    onSuccess(res, variables, context) {
+      setCheckout({
+        ...checkout!,
+        lines: {
+          edges: checkout
+            ? checkout.lines.edges.map((line) => {
+                if (line.node.id === variables.lineId) {
+                  return {
+                    ...line,
+                    node: {
+                      ...line.node,
+                      quantity: variables.quantity,
+                    },
+                  };
+                }
+                return line;
+              })
+            : [],
+        },
+      });
       setCart([...variables.cart]);
       showMessage('Ajouté au panier', 'success');
       setTimeout(() => router.push('/cart'), 1000);
@@ -114,11 +131,7 @@ const ProductFooter = ({
                 email: customer.customer.email!,
                 phone: customer.customer.phone,
                 customerAccessToken: token.token!.accessToken,
-                //deliveryAddressPreferences: customerAddresses,
                 countryCode: customer.customer.defaultAddress?.countryCodeV2 || 'FR',
-                //preferences: {
-                //  delivery: customerDeliveryPreferences,
-                //},
               },
       }),
     onSuccess(checkout, variables, context) {

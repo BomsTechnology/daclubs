@@ -8,39 +8,43 @@ import { checkoutWithStorage, customerAtom, tokenWithStorage } from '../utils/st
 export default function useUpdateBuyerIdentity() {
   const { showMessage } = useShowNotification();
   const [token] = useAtom(tokenWithStorage);
-  const [checkout, setCheckout] = useAtom(checkoutWithStorage);
+  const [checkout] = useAtom(checkoutWithStorage);
   const [customer] = useAtom(customerAtom);
 
   const customerAddresses =
-    customer.customer!.addresses?.edges.map((edge) => {
-      return {
-        //customerAddressId: edge.node.id,
-        deliveryAddress: {
-          address1: edge.node.address1!,
-          address2: edge.node.address2 || '',
-          city: edge.node.city!,
-          company: edge.node.company || '',
-          country: edge.node.country!,
-          firstName: edge.node.firstName!,
-          lastName: edge.node.lastName!,
-          phone: edge.node.phone || '',
-          province: edge.node.province || '',
-          zip: edge.node.zip!,
-        },
-      };
-    }) || [];
+    customer.customer && customer.customer.addresses
+      ? customer.customer.addresses?.edges.map((edge) => {
+          return {
+            //customerAddressId: edge.node.id,
+            deliveryAddress: {
+              address1: edge.node.address1!,
+              address2: edge.node.address2 || '',
+              city: edge.node.city!,
+              company: edge.node.company || '',
+              country: edge.node.country!,
+              firstName: edge.node.firstName!,
+              lastName: edge.node.lastName!,
+              phone: edge.node.phone || '',
+              province: edge.node.province || '',
+              zip: edge.node.zip!,
+            },
+          };
+        })
+      : [];
 
   const customerDeliveryPreferences: CartDeliveryCoordinatesPreferenceInput[] =
-    customer.customer!.addresses?.edges.map((edge) => {
-      return {
-        coordinates: {
-          countryCode: edge.node.countryCodeV2 || 'FR',
-          latitude: edge.node.latitude!,
-          longitude: edge.node.longitude!,
-        },
-        deliveryMethod: 'SHIPPING',
-      };
-    }) || [];
+    customer.customer && customer.customer.addresses
+      ? customer.customer.addresses?.edges.map((edge) => {
+          return {
+            coordinates: {
+              countryCode: edge.node.countryCodeV2 || 'FR',
+              latitude: edge.node.latitude!,
+              longitude: edge.node.longitude!,
+            },
+            deliveryMethod: 'SHIPPING',
+          };
+        })
+      : [];
   const updateBuyerIdentity = useMutation({
     mutationFn: () =>
       updateBuyerIdentityCart({
@@ -56,9 +60,6 @@ export default function useUpdateBuyerIdentity() {
               },
         cartId: checkout?.id!,
       }),
-    onSuccess(checkout, variables, context) {
-      setCheckout(checkout);
-    },
     onError: (error) => {
       showMessage(error.message || 'Une erreur est survenue');
     },

@@ -2,12 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation } from '@tanstack/react-query';
 import { Link } from 'expo-router';
 import { useAtom } from 'jotai';
+import { useState } from 'react';
 import { FlatList } from 'react-native';
 import { Button, SizableText } from 'tamagui';
 
 import { deleteCustomerAdress } from '~/src/api/customer';
 import AdressCard from '~/src/components/card/AddressCard';
 import CustomHeader from '~/src/components/header/CustomHeader';
+import ConfirmModal from '~/src/components/modal/ConfirmModal';
 import EmptyScreen from '~/src/components/screen/EmptyScreen';
 import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
@@ -20,6 +22,7 @@ const AdressPage = () => {
   const { tokenRefresh } = useRefreshToken();
   const [token] = useAtom(tokenWithStorage);
   const [customer, setCustomer] = useAtom(customerAtom);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const mutationDeleteCustomerAdress = useMutation({
     mutationFn: (id: string) =>
@@ -56,7 +59,9 @@ const AdressPage = () => {
     <>
       <CustomHeader title="Mes adresses" />
       <Container>
-        { customer.customer!.addresses?.edges && customer.customer!.addresses?.edges.length > 0 ? (
+        {customer.customer &&
+        customer.customer!.addresses?.edges &&
+        customer.customer!.addresses?.edges.length > 0 ? (
           <FlatList
             data={customer.customer!.addresses?.edges}
             renderItem={({ item }) => (
@@ -85,6 +90,18 @@ const AdressPage = () => {
           </Button>
         </Link>
       </Container>
+      <ConfirmModal
+        title="Se deconnecter"
+        description="Etes-vous sur de vouloir vous deconnecter ?"
+        confirmText="Annuler"
+        cancelText="Se deconnecter"
+        onCancel={() => {
+          setIsModalVisible(false);
+          //mutationdeleteAccessToken.mutate(token.token?.accessToken!);
+        }}
+        onConfirm={() => setIsModalVisible(false)}
+        open={isModalVisible}
+      />
     </>
   );
 };

@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useAtom } from 'jotai';
 import { RESET } from 'jotai/utils';
+import { useState } from 'react';
 import { FlatList } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { Button, SizableText, XStack } from 'tamagui';
@@ -10,6 +11,7 @@ import { Button, SizableText, XStack } from 'tamagui';
 import { deleteAccessToken } from '~/src/api/customer';
 import AccountHeader from '~/src/components/header/AccountHeader';
 import CustomHeader from '~/src/components/header/CustomHeader';
+import ConfirmModal from '~/src/components/modal/ConfirmModal';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import { queryClient } from '~/src/utils/queryClient';
 import { tokenWithStorage, customerAtom } from '~/src/utils/storage';
@@ -19,6 +21,7 @@ const Page = () => {
   const { showMessage } = useShowNotification();
   const [token, setToken] = useAtom(tokenWithStorage);
   const [customer, setCustomer] = useAtom(customerAtom);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const mutationdeleteAccessToken = useMutation({
     mutationFn: (token: string) => deleteAccessToken(token),
@@ -57,7 +60,7 @@ const Page = () => {
       icon: <Ionicons name="log-in-outline" size={20} color="#ff797970" />,
       color: '#ff797970',
       action: () => {
-        mutationdeleteAccessToken.mutate(token.token?.accessToken!);
+        setIsModalVisible(true);
       },
       isAuth: true,
     },
@@ -112,6 +115,18 @@ const Page = () => {
           keyExtractor={(item) => item.title}
         />
       </Container>
+      <ConfirmModal
+        title="Se deconnecter"
+        description="Etes-vous sur de vouloir vous deconnecter ?"
+        confirmText="Annuler"
+        cancelText="Se deconnecter"
+        onCancel={() => {
+          setIsModalVisible(false);
+          mutationdeleteAccessToken.mutate(token.token?.accessToken!);
+        }}
+        onConfirm={() => setIsModalVisible(false)}
+        open={isModalVisible}
+      />
     </>
   );
 };
