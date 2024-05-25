@@ -7,6 +7,7 @@ import { SizableText, XStack, Button as TamaguiButton } from 'tamagui';
 import { addLineCart, createCart, updateLineCart } from '~/src/api/cart';
 import Button from '~/src/components/form/Button';
 import useShowNotification from '~/src/hooks/useShowNotification';
+import useUpdateBuyerIdentity from '~/src/hooks/useUpdateBuyerIdentity';
 import { CartLineProps } from '~/src/types/CheckoutProps';
 import { MainProductProps, ProductCartProps, VariantProps } from '~/src/types/ProductProps';
 import {
@@ -30,30 +31,12 @@ const ProductFooter = ({
   setWishlistItem: (item: MainProductProps) => void;
 }) => {
   const { showMessage } = useShowNotification();
+  const { customerAddresses, customerDeliveryPreferences } = useUpdateBuyerIdentity();
   const [customer] = useAtom(customerAtom);
   const [token] = useAtom(tokenWithStorage);
   const [cart, setCart] = useAtom(cartWithStorage);
   const [checkout, setCheckout] = useAtom(checkoutWithStorage);
   const isFavorite = wishlist.some((item) => item.id === data.id);
-
-  const customerAddresses =
-    customer.customer!.addresses?.edges.map((edge) => {
-      return {
-        customerAddressId: edge.node.id,
-        deliveryAddress: {
-          address1: edge.node.address1!,
-          address2: edge.node.address2 || '',
-          city: edge.node.city!,
-          company: edge.node.company || '',
-          country: edge.node.country!,
-          firstName: edge.node.firstName!,
-          lastName: edge.node.lastName!,
-          phone: edge.node.phone || '',
-          province: edge.node.province || '',
-          zip: edge.node.zip!,
-        },
-      };
-    }) || [];
 
   const mutationAddLineCart = useMutation({
     mutationFn: () =>
@@ -131,8 +114,11 @@ const ProductFooter = ({
                 email: customer.customer.email!,
                 phone: customer.customer.phone,
                 customerAccessToken: token.token!.accessToken,
-                deliveryAddressPreferences: customerAddresses,
+                //deliveryAddressPreferences: customerAddresses,
                 countryCode: customer.customer.defaultAddress?.countryCodeV2 || 'FR',
+                //preferences: {
+                //  delivery: customerDeliveryPreferences,
+                //},
               },
       }),
     onSuccess(checkout, variables, context) {

@@ -5,17 +5,32 @@ import client from '../utils/shopify';
 
 export type AttributeInput = AttributeProps[];
 
+export interface CartDeliveryCoordinatesPreferenceInput {
+  coordinates?: {
+    countryCode: string;
+    latitude: number;
+    longitude: number;
+  };
+  deliveryMethod?: 'PICK_UP' | 'SHIPPING' | 'PICKUP_POINT';
+  pickupHandle?: string[];
+}
+export interface CartPreferencesInput {
+  delivery: CartDeliveryCoordinatesPreferenceInput[];
+  wallet?: string[];
+}
+
 export interface CartBuyerIdentityInput {
   companyLocationId?: string;
   countryCode: string;
   customerAccessToken: string;
-  deliveryAddressPreferences: {
-    customerAddressId: string;
+  deliveryAddressPreferences?: {
+    customerAddressId?: string;
     deliveryAddress: MailingAddressInput;
     deliveryAddressValidationStrategy?: 'COUNTRY_CODE_ONLY' | 'STRICT';
   }[];
   email: string;
   phone?: string;
+  preferences?: CartPreferencesInput;
   walletPreferences?: string[];
 }
 
@@ -186,7 +201,6 @@ export const createCart = async ({
       }
     }
       `;
-    //  console.log(buyerIdentity!.deliveryAddressPreferences);
   const { data, errors } = await client.request(createCartMutation, {
     variables: {
       cartInput: {
@@ -291,6 +305,86 @@ export const updateLineCart = async ({
     throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
   }
   return data.cartLinesUpdate.cart;
+};
+
+export const removeLineCart = async ({
+  lineIds,
+  cartId,
+}: {
+  lineIds: string[];
+  cartId: string;
+}): Promise<CheckoutProps> => {
+  const updateLineCartMutation = `
+    mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+        cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+            cart {
+              ${cartQuery}
+              }
+              userErrors {
+                field
+                message
+                code
+              }
+            }
+          }
+            `;
+  const { data, errors } = await client.request(updateLineCartMutation, {
+    variables: {
+      cartId,
+      lineIds,
+    },
+  });
+  if (errors) {
+    throw new CustomError(
+      errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
+      errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
+    );
+  }
+  if (data.cartLinesRemove.userErrors.length > 0) {
+    const graphQLError = data.cartLinesRemove.userErrors[0];
+    throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
+  }
+  return data.cartLinesRemove.cart;
+};
+
+export const updateBuyerIdentityCart = async ({
+  buyerIdentity,
+  cartId,
+}: {
+  buyerIdentity?: CartBuyerIdentityInput;
+  cartId: string;
+}): Promise<CheckoutProps> => {
+  const createCartMutation = `
+  mutation updateCartBuyerIdentity($buyerIdentity: CartBuyerIdentityInput!, $cartId: ID!) {
+    cartBuyerIdentityUpdate(buyerIdentity: $buyerIdentity, cartId: $cartId) {
+        cart {
+          ${cartQuery}
+          }
+          userErrors {
+            field
+            message
+            code
+          }
+        }
+      }
+        `;
+  const { data, errors } = await client.request(createCartMutation, {
+    variables: {
+      buyerIdentity,
+      cartId,
+    },
+  });
+  if (errors) {
+    throw new CustomError(
+      errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
+      errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
+    );
+  }
+  if (data.cartBuyerIdentityUpdate.userErrors.length > 0) {
+    const graphQLError = data.cartBuyerIdentityUpdate.userErrors[0];
+    throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
+  }
+  return data.cartBuyerIdentityUpdate.cart;
 };
 
 function getErrorMessage(error: any) {

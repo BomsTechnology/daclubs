@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useAtom } from 'jotai';
 import parsePhoneNumberFromString from 'libphonenumber-js';
 import { useState } from 'react';
@@ -18,7 +18,6 @@ import CustomHeader from '~/src/components/header/CustomHeader';
 import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import CustomError from '~/src/types/CustomError';
-import { queryClient } from '~/src/utils/queryClient';
 import { customerAtom, tokenWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 const Page = () => {
@@ -44,7 +43,7 @@ const Page = () => {
       address1: address?.node?.address1,
       address2: address?.node?.address2,
       city: address?.node?.city,
-      province: address?.node?.province,
+      province: address?.node?.provinceCode,
       zip: address?.node?.zip,
       company: address?.node?.company,
     },
@@ -75,8 +74,8 @@ const Page = () => {
           },
         },
       });
-      //queryClient.invalidateQueries({ queryKey: ['customer', token.token?.accessToken] });
       showMessage('Adresse mis a jour', 'success');
+      router.back();
     },
     onError: (error: CustomError, variables, context) => {
       if (error.code === 'TOKEN_INVALID' || error.code === 'INVALID_MULTIPASS_REQUEST') {
@@ -100,6 +99,7 @@ const Page = () => {
         customer: data,
       });
       showMessage('Adresse définie comme defaut', 'success');
+      router.back();
     },
     onError: (error: CustomError, variables, context) => {
       if (error.code === 'TOKEN_INVALID' || error.code === 'INVALID_MULTIPASS_REQUEST') {

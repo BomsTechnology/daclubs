@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
-import { SizableText, YStack } from 'tamagui';
 
 import ProductDeliveryMode from './ProductDeliveryMode';
 import ProductDescription from './ProductDescription';
 import ProductExtra from './ProductExtra';
 import ProductFooter from './ProductFooter';
+import ProductInfo from './ProductInfo';
 import ProductSize from './ProductSize';
 import ProductSlider from './ProductSlider';
 import CustomHeader from '../header/CustomHeader';
@@ -18,7 +18,6 @@ import { getProduct } from '~/src/api/product';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import { MainProductProps, VariantProps } from '~/src/types/ProductProps';
 import { wishlistWithStorage } from '~/src/utils/storage';
-import ProductInfo from './ProductInfo';
 
 const ProductDetail = ({ id }: { id: string }) => {
   const { showMessage } = useShowNotification();

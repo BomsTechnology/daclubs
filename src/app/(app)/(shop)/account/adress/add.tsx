@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
@@ -12,12 +13,12 @@ import CustomHeader from '~/src/components/header/CustomHeader';
 import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import CustomError from '~/src/types/CustomError';
-import { queryClient } from '~/src/utils/queryClient';
-import { tokenWithStorage } from '~/src/utils/storage';
+import { customerAtom, tokenWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 const AddAdressPage = () => {
   const { tokenRefresh } = useRefreshToken();
   const [token] = useAtom(tokenWithStorage);
+  const [customer, setCustomer] = useAtom(customerAtom);
   const { showMessage } = useShowNotification();
   const { control, handleSubmit, setError } = useForm();
   const [country, setCountry] = useState('France');
@@ -30,8 +31,22 @@ const AddAdressPage = () => {
         props: input,
       }),
     onSuccess(data, variables, context) {
-      queryClient.invalidateQueries({ queryKey: ['customer', token.token?.accessToken] });
+      setCustomer({
+        customer: {
+          ...customer.customer!,
+          addresses: {
+            edges: [
+              ...(customer.customer!.addresses!.edges || []),
+              {
+                cursor: data.id,
+                node: data,
+              },
+            ],
+          },
+        },
+      });
       showMessage('Adresse ajouté', 'success');
+      router.back();
     },
     onError: (error: CustomError, variables, context) => {
       if (error.code === 'TOKEN_INVALID' || error.code === 'INVALID_MULTIPASS_REQUEST') {

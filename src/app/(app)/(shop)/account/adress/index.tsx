@@ -8,6 +8,7 @@ import { Button, SizableText } from 'tamagui';
 import { deleteCustomerAdress } from '~/src/api/customer';
 import AdressCard from '~/src/components/card/AddressCard';
 import CustomHeader from '~/src/components/header/CustomHeader';
+import EmptyScreen from '~/src/components/screen/EmptyScreen';
 import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import CustomError from '~/src/types/CustomError';
@@ -55,16 +56,20 @@ const AdressPage = () => {
     <>
       <CustomHeader title="Mes adresses" />
       <Container>
-        <FlatList
-          data={customer.customer!.addresses?.edges}
-          renderItem={({ item }) => (
-            <AdressCard
-              {...item.node}
-              isDefault={item.node.id === customer.customer?.defaultAddress?.id}
-              onDelete={() => mutationDeleteCustomerAdress.mutate(item.node.id)}
-            />
-          )}
-        />
+        { customer.customer!.addresses?.edges && customer.customer!.addresses?.edges.length > 0 ? (
+          <FlatList
+            data={customer.customer!.addresses?.edges}
+            renderItem={({ item }) => (
+              <AdressCard
+                {...item.node}
+                isDefault={item.node.id === customer.customer?.defaultAddress?.id}
+                onDelete={() => mutationDeleteCustomerAdress.mutate(item.node.id)}
+              />
+            )}
+          />
+        ) : (
+          <EmptyScreen message="Vous n'avez aucune adresse enregistrée" />
+        )}
         <Link href="/account/adress/add" asChild>
           <Button
             flexDirection="row"
