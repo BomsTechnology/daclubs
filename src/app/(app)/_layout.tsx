@@ -88,6 +88,7 @@ const AppLayout = () => {
       />
       <Drawer.Screen
         name="store/index"
+        redirect
         options={{
           title: 'Magasin Physique',
           headerShown: !nestedCategoryPageOpened,

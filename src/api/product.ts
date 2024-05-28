@@ -1,10 +1,19 @@
 import { ProductInfiniteScrollProps, MainProductProps } from '../types/ProductProps';
+import SearchProps, { FilterProps } from '../types/SearchProps';
 import client from '../utils/shopify';
 
-export const getProducts = async ({ pageParam = '' }): Promise<ProductInfiniteScrollProps> => {
+export const getProducts = async ({
+  pageParam = '',
+  filter = { price: { min: '', max: '' }, items: [] },
+}: {
+  pageParam?: string;
+  filter?: SearchProps;
+}): Promise<ProductInfiniteScrollProps> => {
+  console.log(pageParam);
   const productsQuery = `
       query getProducts {
-              products(first: 50${pageParam ? `, after: "${pageParam}"` : ''}) {
+              products(
+                first: 50${pageParam ? `, after: "${pageParam}"` : ''}) {
                 edges {
                   cursor
                   node {
@@ -167,4 +176,62 @@ export const getProduct = async (id: string): Promise<MainProductProps> => {
   });
   if (errors) throw errors;
   return data.product;
+};
+
+export const getFilterByHandle = async (handle: string): Promise<FilterProps[]> => {
+  const filterQuery = `
+  query Facets($handle: String) {
+    collection(handle: $handle) {
+      handle
+      products(first: 10) {
+        filters {
+          id
+          label
+          type
+          values {
+            id
+            label
+            count
+            input
+          }
+        }
+      }
+    }
+  }`;
+  const { data, errors } = await client.request(filterQuery, {
+    variables: {
+      handle,
+    },
+  });
+  if (errors) throw errors;
+  return data.collection.products.filters;
+};
+
+export const getFilterById = async (id: string): Promise<FilterProps[]> => {
+  const filterQuery = `
+  query Facets($id: ID) {
+    collection(id: $id) {
+      handle
+      products(first: 10) {
+        filters {
+          id
+          label
+          type
+          values {
+            id
+            label
+            count
+            input
+          }
+        }
+      }
+    }
+  }`;
+  const { data, errors } = await client.request(filterQuery, {
+    variables: {
+      id,
+    },
+  });
+  if (errors) throw errors;
+  return data.collection.products.filters;
 };

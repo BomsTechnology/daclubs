@@ -24,6 +24,7 @@ import Roostack from '../components/Roostack';
 
 import { queryClient } from '~/src/utils/queryClient';
 import config from '~/tamagui.config';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -55,15 +56,17 @@ export default function Root() {
       <TamaguiProvider config={config} defaultTheme="light">
         <GestureHandlerRootView style={{ flex: 1 }}>
           <QueryClientProvider client={queryClient}>
-            <ToastProvider
-              offsetTop={50}
-              swipeEnabled
-              textStyle={{ fontFamily: 'RalewayRegular', textAlign: 'center' }}>
-              <ShopifyCheckoutSheetProvider>
-                <Roostack />
-                <StatusBar style="auto" />
-              </ShopifyCheckoutSheetProvider>
-            </ToastProvider>
+            <BottomSheetModalProvider>
+              <ToastProvider
+                offsetTop={50}
+                swipeEnabled
+                textStyle={{ fontFamily: 'RalewayRegular', textAlign: 'center' }}>
+                <ShopifyCheckoutSheetProvider>
+                  <Roostack />
+                  <StatusBar style="auto" />
+                </ShopifyCheckoutSheetProvider>
+              </ToastProvider>
+            </BottomSheetModalProvider>
           </QueryClientProvider>
         </GestureHandlerRootView>
       </TamaguiProvider>

@@ -58,7 +58,7 @@ const Page = () => {
     refetch: refetchCollection,
   } = useQuery({
     queryKey: ['collection_with_product_by_handle'],
-    queryFn: () => getProductsInCollectionByHandle('nouveaute'),
+    queryFn: () => getProductsInCollectionByHandle({ handle: 'nouveaute'}),
   });
 
   const setWishlistItem = (data: MainProductProps) => {

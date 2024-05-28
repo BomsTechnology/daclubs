@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { Link, router } from 'expo-router';
 import { useAtom } from 'jotai';
+import { RESET } from 'jotai/utils';
 import { useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { SizableText, YStack, ScrollView, XStack } from 'tamagui';

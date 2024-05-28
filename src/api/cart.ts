@@ -21,14 +21,14 @@ export interface CartPreferencesInput {
 
 export interface CartBuyerIdentityInput {
   companyLocationId?: string;
-  countryCode: string;
+  countryCode?: string;
   customerAccessToken: string;
   deliveryAddressPreferences?: {
     customerAddressId?: string;
     deliveryAddress: MailingAddressInput;
     deliveryAddressValidationStrategy?: 'COUNTRY_CODE_ONLY' | 'STRICT';
   }[];
-  email: string;
+  email?: string;
   phone?: string;
   preferences?: CartPreferencesInput;
   walletPreferences?: string[];
@@ -270,9 +270,11 @@ export const addLineCart = async ({
 export const updateLineCart = async ({
   lines,
   cartId,
+  buyerIdentity,
 }: {
   lines: CartLineInput[];
   cartId: string;
+  buyerIdentity?: CartBuyerIdentityInput | null;
 }): Promise<CheckoutProps> => {
   const updateLineCartMutation = `
     mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
@@ -295,6 +297,7 @@ export const updateLineCart = async ({
     },
   });
   if (errors) {
+    console.log(errors);
     throw new CustomError(
       errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
       errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
@@ -351,9 +354,9 @@ export const updateBuyerIdentityCart = async ({
   buyerIdentity,
   cartId,
 }: {
-  buyerIdentity?: CartBuyerIdentityInput;
+  buyerIdentity?: CartBuyerIdentityInput | null;
   cartId: string;
-}): Promise<void> => {
+}): Promise<CheckoutProps | void> => {
   const createCartMutation = `
   mutation updateCartBuyerIdentity($buyerIdentity: CartBuyerIdentityInput!, $cartId: ID!) {
     cartBuyerIdentityUpdate(buyerIdentity: $buyerIdentity, cartId: $cartId) {
@@ -374,7 +377,7 @@ export const updateBuyerIdentityCart = async ({
       cartId,
     },
   });
-  if (errors && errors.networkStatusCode !== 200) {
+  if (errors) {
     throw new CustomError(
       errors.graphQLErrors![0].message || errors.message || 'Une erreur est survenue',
       errors.graphQLErrors![0].networkStatusCode || errors.networkStatusCode
@@ -384,6 +387,8 @@ export const updateBuyerIdentityCart = async ({
     const graphQLError = data.cartBuyerIdentityUpdate.userErrors[0];
     throw new CustomError(getErrorMessage(graphQLError), graphQLError.code);
   }
+
+  return data && data.cartBuyerIdentityUpdate ? data.cartBuyerIdentityUpdate.cart : undefined;
 };
 
 function getErrorMessage(error: any) {

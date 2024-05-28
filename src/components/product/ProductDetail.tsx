@@ -19,7 +19,7 @@ import useShowNotification from '~/src/hooks/useShowNotification';
 import { MainProductProps, VariantProps } from '~/src/types/ProductProps';
 import { wishlistWithStorage } from '~/src/utils/storage';
 
-const ProductDetail = ({ id }: { id: string }) => {
+const ProductDetail = ({ id, pb }: { id: string; pb?: boolean; }) => {
   const { showMessage } = useShowNotification();
   const [wishlist, setWishlist] = useAtom(wishlistWithStorage);
   const [selectedVariant, setSelectedVariant] = useState<VariantProps | null>(null);
@@ -125,6 +125,7 @@ const ProductDetail = ({ id }: { id: string }) => {
         <ProductExtra />
       </ScrollView>
       <ProductFooter
+        pb={pb}
         data={data}
         selectedVariant={selectedVariant!}
         selectedSize={selectedSize}
