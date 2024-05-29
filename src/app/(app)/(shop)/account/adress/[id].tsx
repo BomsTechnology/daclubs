@@ -18,12 +18,13 @@ import CustomHeader from '~/src/components/header/CustomHeader';
 import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import CustomError from '~/src/types/CustomError';
-import { customerAtom, tokenWithStorage } from '~/src/utils/storage';
+import { customerAtom, notificationWithStorage, tokenWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 const Page = () => {
   const { id } = useLocalSearchParams();
   const { tokenRefresh } = useRefreshToken();
   const [token] = useAtom(tokenWithStorage);
+  const [notifications, setNotifications] = useAtom(notificationWithStorage);
   const [customer, setCustomer] = useAtom(customerAtom);
   const { showMessage } = useShowNotification();
 
@@ -74,6 +75,15 @@ const Page = () => {
           },
         },
       });
+      const newNotifs = [
+        ...notifications,
+        {
+          message: `Vous avez modifié votre adresse: ${address?.node.address1}, ${address?.node.city} ${address?.node.province ? address?.node.province : ''} ${address?.node.zip}, ${address?.node.country}`,
+          read: false,
+          title: 'Adresse mise à jour',
+        },
+      ]
+      setNotifications(newNotifs);
       showMessage('Adresse mis a jour', 'success');
       router.back();
     },
@@ -98,6 +108,14 @@ const Page = () => {
       setCustomer({
         customer: data,
       });
+      setNotifications((prev) => [
+        ...prev,
+        {
+          message: `Vous avez modifié votre adresse: ${address?.node.address1}, ${address?.node.city} ${address?.node.province ? address?.node.province : ''} ${address?.node.zip}, ${address?.node.country}`,
+          read: false,
+          title: 'Adresse par défaut mise à jour',
+        },
+      ]);
       showMessage('Adresse définie comme defaut', 'success');
       router.back();
     },

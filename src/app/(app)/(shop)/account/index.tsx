@@ -14,12 +14,13 @@ import CustomHeader from '~/src/components/header/CustomHeader';
 import ConfirmModal from '~/src/components/modal/ConfirmModal';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import { queryClient } from '~/src/utils/queryClient';
-import { tokenWithStorage, customerAtom } from '~/src/utils/storage';
+import { tokenWithStorage, customerAtom, notificationWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
 const Page = () => {
   const { showMessage } = useShowNotification();
   const [token, setToken] = useAtom(tokenWithStorage);
+  const [, setNotifications] = useAtom(notificationWithStorage);
   const [customer, setCustomer] = useAtom(customerAtom);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -29,6 +30,7 @@ const Page = () => {
       queryClient.invalidateQueries({ queryKey: ['customer', token.token?.accessToken] });
       setCustomer({});
       setToken(RESET);
+      setNotifications(RESET);
       showMessage('Deconnexion reussie', 'success');
     },
     onError: (error: any) => {

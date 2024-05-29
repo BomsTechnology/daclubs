@@ -7,13 +7,19 @@ import {
 } from '@react-navigation/drawer';
 import { useSegments } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
-import { useMemo } from 'react';
+import { useAtom } from 'jotai';
+import { useMemo, useState } from 'react';
 import { Image } from 'react-native';
-import { XStack } from 'tamagui';
+import { Circle, XStack } from 'tamagui';
 
+import NotificationBS from '~/src/components/bottomsheet/NotificationBS';
 import HeaderButton from '~/src/components/header/HeaderButton';
 import HeaderTitle from '~/src/components/header/HeaderTitle';
+import NotificationProps from '~/src/types/NotificationProps';
+import { notificationWithStorage } from '~/src/utils/storage';
 const AppLayout = () => {
+  const [notifications, setNotifications] = useAtom(notificationWithStorage);
+  const [isOpen, setIsOpen] = useState(false);
   const segments = useSegments();
   const nestedCategoryPageOpened = useMemo(() => {
     return (
@@ -21,10 +27,20 @@ const AppLayout = () => {
       (segments.length === 3 && (segments[2] === 'category' || segments[2] === 'detail'))
     );
   }, [segments]);
+  const unRead = notifications.filter((item) => !item.read).length;
 
   return (
     <Drawer
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      drawerContent={(props) => (
+        <CustomDrawerContent
+          props={props}
+          unRead={unRead}
+          notifications={notifications}
+          setNotifications={setNotifications}
+          setIsOpen={setIsOpen}
+          isOpen={isOpen}
+        />
+      )}
       screenOptions={{
         swipeEnabled: !nestedCategoryPageOpened,
         headerShown: true,
@@ -55,7 +71,10 @@ const AppLayout = () => {
         },
         headerTitle: () => <HeaderTitle mt={20} />,
         headerRight: () => (
-          <HeaderButton mr={20} mt={20}>
+          <HeaderButton position="relative" mr={20} mt={20} onPress={() => setIsOpen(true)}>
+            {unRead > 0 && (
+              <Circle position="absolute" top={5} right={5} size={10} backgroundColor="#38A61D" />
+            )}
             <Ionicons name="notifications" size={20} color="#000" />
           </HeaderButton>
         ),
@@ -101,14 +120,37 @@ const AppLayout = () => {
   );
 };
 
-const CustomDrawerContent = (props: DrawerContentComponentProps) => {
+const CustomDrawerContent = ({
+  props,
+  unRead,
+  notifications,
+  setNotifications,
+  isOpen,
+  setIsOpen,
+}: {
+  props: DrawerContentComponentProps;
+  unRead: number;
+  notifications: NotificationProps[];
+  setNotifications: (notifications: NotificationProps[]) => void;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}) => {
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={{ backgroundColor: '#fff' }}>
-      <XStack pb={20} px={20} pt={10} borderBottomWidth={1} borderBottomColor="#EBEDF3">
-        <Image source={require('~/assets/images/logo.png')} />
-      </XStack>
-      <DrawerItemList {...props} />
-    </DrawerContentScrollView>
+    <>
+      <DrawerContentScrollView {...props} contentContainerStyle={{ backgroundColor: '#fff' }}>
+        <XStack pb={20} px={20} pt={10} borderBottomWidth={1} borderBottomColor="#EBEDF3">
+          <Image source={require('~/assets/images/logo.png')} />
+        </XStack>
+        <DrawerItemList {...props} />
+      </DrawerContentScrollView>
+      <NotificationBS
+        unRead={unRead}
+        notifications={notifications}
+        setNotifications={setNotifications}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+      />
+    </>
   );
 };
 

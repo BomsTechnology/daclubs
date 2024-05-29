@@ -30,6 +30,7 @@ const FilterItem = ({
     <CheckboxWithLabel
       label={`${item.label} (${item.count})`}
       onCheckedChange={() => setFilterItem(item)}
+      defaultChecked={!!filterData?.items?.find((val) => val === item.input)}
     />
   );
   return (

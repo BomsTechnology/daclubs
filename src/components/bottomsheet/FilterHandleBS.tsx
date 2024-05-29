@@ -18,11 +18,13 @@ import FilterPrice from '../filter/FilterPrice';
 import { getFilterByHandle } from '~/src/api/product';
 import SearchProps, { FilterProps } from '~/src/types/SearchProps';
 
-const FilterBS = ({
+const FilterHandleBS = ({
   filterData,
   setFilterData,
   onFilter,
+  handle,
 }: {
+  handle: string;
   filterData: SearchProps | null;
   setFilterData: (filter: SearchProps) => void;
   onFilter: () => void;
@@ -30,11 +32,11 @@ const FilterBS = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState('');
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const snapPoints = useMemo(() => ['95%'], []);
+  const snapPoints = useMemo(() => ['90%'], []);
 
   const { data } = useQuery({
     queryKey: ['filter_by_handle'],
-    queryFn: () => getFilterByHandle('all'),
+    queryFn: () => getFilterByHandle(handle),
   });
 
   useEffect(() => {
@@ -187,4 +189,4 @@ const FilterBS = ({
   );
 };
 
-export default FilterBS;
+export default FilterHandleBS;

@@ -6,10 +6,12 @@ import { View } from 'react-native';
 import { Spinner } from 'tamagui';
 
 import { getProductsInCollectionByHandle } from '~/src/api/collection';
-import FilterBS from '~/src/components/bottomsheet/FilterBS';
+import FilterHandleBS from '~/src/components/bottomsheet/FilterHandleBS';
 import ProductCard from '~/src/components/card/ProductCard';
+import EmptyScreen from '~/src/components/screen/EmptyScreen';
 import ErrorScreen from '~/src/components/screen/ErrorScreen';
 import LoadingScreen from '~/src/components/screen/LoadingScreen';
+import formatDataFilter from '~/src/functions/formatDataFilter';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import { MainProductProps } from '~/src/types/ProductProps';
 import SearchProps from '~/src/types/SearchProps';
@@ -26,21 +28,23 @@ const Page = () => {
     },
   });
   const [isFilter, setIsFilter] = useState(false);
-  //const dataFilter = filterData
   const [wishlist, setWishlist] = useAtom(wishlistWithStorage);
   const [products, setProducts] = useState<MainProductProps[]>([]);
   const { data, error, refetch, fetchNextPage, isFetching, isFetchingNextPage, status } =
     useInfiniteQuery({
       queryKey: ['products'],
       queryFn: ({ pageParam }) =>
-        getProductsInCollectionByHandle({ pageParam, filter: filterData, handle: 'all' }),
+        getProductsInCollectionByHandle({
+          pageParam,
+          filter: formatDataFilter(filterData),
+          handle: 'all',
+        }),
       initialPageParam: '',
       getNextPageParam: (lastPage, allPages, lastPageParam) => lastPage.products.pageInfo.endCursor,
     });
 
   useEffect(() => {
     if (status === 'success') {
-      console.log(data.pages.length);
       if (isFilter) {
         data.pages.forEach((page) => {
           page.products.edges.forEach((product) => {
@@ -72,14 +76,26 @@ const Page = () => {
     return (
       <ErrorScreen
         button
-        onPress={() => refetch()}
+        onPress={() => {
+          setIsFilter(false);
+          setProducts([]);
+          setFilterData({
+            items: [],
+            price: {
+              min: '',
+              max: '',
+            },
+          });
+          refetch();
+        }}
         message={error?.message || 'Une erreur est survenue'}
       />
     );
   return (
     <>
       <Container>
-        <FilterBS
+        <FilterHandleBS
+          handle="all"
           setFilterData={setFilterData}
           filterData={filterData}
           onFilter={() => {
@@ -88,30 +104,35 @@ const Page = () => {
             refetch();
           }}
         />
-        {isFetching && <LoadingScreen />}
-        <FlashList
-          data={products}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) => (
-            <ProductCard
-              setWishlist={() => setWishlistItem(item)}
-              isFavorite={wishlist.some((prod) => prod.id === item.id)}
-              from="(app)/sneakers"
-              {...item}
-              peer={(index + 1) % 2 === 0}
-            />
-          )}
-          estimatedItemSize={500}
-          contentContainerStyle={{ paddingBottom: 50 }}
-          extraData={wishlist}
-          onEndReached={() => {
-            if (!isFetching && data?.pages[data.pages.length - 1].products.pageInfo.hasNextPage)
-              fetchNextPage();
-          }}
-          ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
-          ListFooterComponent={() => isFetchingNextPage && <Spinner color="#000" />}
-        />
+        {isFetching ? (
+          <LoadingScreen />
+        ) : products.length === 0 ? (
+          <EmptyScreen message="Aucun produit trouvée" />
+        ) : (
+          <FlashList
+            data={products}
+            numColumns={2}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item, index }) => (
+              <ProductCard
+                setWishlist={() => setWishlistItem(item)}
+                isFavorite={wishlist.some((prod) => prod.id === item.id)}
+                from="(app)/sneakers"
+                {...item}
+                peer={(index + 1) % 2 === 0}
+              />
+            )}
+            estimatedItemSize={500}
+            contentContainerStyle={{ paddingBottom: 50 }}
+            extraData={wishlist}
+            onEndReached={() => {
+              if (!isFetching && data?.pages[data.pages.length - 1].products.pageInfo.hasNextPage)
+                fetchNextPage();
+            }}
+            ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
+            ListFooterComponent={() => isFetchingNextPage && <Spinner color="#000" />}
+          />
+        )}
       </Container>
     </>
   );

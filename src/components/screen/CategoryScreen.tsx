@@ -9,15 +9,26 @@ import ErrorScreen from './ErrorScreen';
 import LoadingScreen from './LoadingScreen';
 import { getCollectionById, getProductsInCollectionById } from '../../api/collection';
 import { MainProductProps } from '../../types/ProductProps';
+import FilterIDBS from '../bottomsheet/FilterIDBS';
 import ProductCard from '../card/ProductCard';
 import CustomHeader from '../header/CustomHeader';
 
+import formatDataFilter from '~/src/functions/formatDataFilter';
 import useShowNotification from '~/src/hooks/useShowNotification';
+import SearchProps from '~/src/types/SearchProps';
 import { wishlistWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
 const CategoryScreen = ({ id, from }: { id: string; from: string }) => {
   const { showMessage } = useShowNotification();
+  const [filterData, setFilterData] = useState<SearchProps>({
+    items: [],
+    price: {
+      max: '',
+      min: '',
+    },
+  });
+  const [isFilter, setIsFilter] = useState(false);
   const [wishlist, setWishlist] = useAtom(wishlistWithStorage);
   const [products, setProducts] = useState<MainProductProps[]>([]);
   const {
@@ -40,18 +51,28 @@ const CategoryScreen = ({ id, from }: { id: string; from: string }) => {
     status,
   } = useInfiniteQuery({
     queryKey: ['collection_with_product_by_id', id],
-    queryFn: ({ pageParam }) => getProductsInCollectionById({ id, pageParam }),
+    queryFn: ({ pageParam }) =>
+      getProductsInCollectionById({ id, pageParam, filter: formatDataFilter(filterData) }),
     initialPageParam: '',
     getNextPageParam: (lastPage, allPages, lastPageParam) => lastPage.products.pageInfo.endCursor,
   });
 
   useEffect(() => {
     if (status === 'success') {
-      collectionWithProducts.pages[collectionWithProducts.pages.length - 1].products.edges.forEach(
-        (product) => {
+      if (isFilter) {
+        collectionWithProducts.pages.forEach((page) => {
+          page.products.edges.forEach((product) => {
+            setProducts((prev) => [...prev, product.node]);
+          });
+        });
+      } else {
+        collectionWithProducts.pages[
+          collectionWithProducts.pages.length - 1
+        ].products.edges.forEach((product) => {
           setProducts((prev) => [...prev, product.node]);
-        }
-      );
+        });
+      }
+      setIsFilter(false);
     }
   }, [collectionWithProducts]);
 
@@ -72,6 +93,15 @@ const CategoryScreen = ({ id, from }: { id: string; from: string }) => {
       <ErrorScreen
         button
         onPress={() => {
+          setIsFilter(false);
+          setProducts([]);
+          setFilterData({
+            items: [],
+            price: {
+              min: '',
+              max: '',
+            },
+          });
           refetchCollection();
         }}
         message={errorCollection?.message || 'Une erreur est survenue'}
@@ -81,12 +111,31 @@ const CategoryScreen = ({ id, from }: { id: string; from: string }) => {
     <>
       <CustomHeader title={collection?.title} />
       <Container>
-        {status === 'pending' ? (
+        <FilterIDBS
+          id={id}
+          setFilterData={setFilterData}
+          filterData={filterData}
+          onFilter={() => {
+            setIsFilter(true);
+            setProducts([]);
+            refetchProducts();
+          }}
+        />
+        {status === 'pending' || isFetching ? (
           <LoadingScreen />
         ) : errorProducts ? (
           <ErrorScreen
             button
             onPress={() => {
+              setIsFilter(false);
+              setProducts([]);
+              setFilterData({
+                items: [],
+                price: {
+                  min: '',
+                  max: '',
+                },
+              });
               refetchProducts();
             }}
             message={errorProducts?.message || 'Une erreur est survenue'}

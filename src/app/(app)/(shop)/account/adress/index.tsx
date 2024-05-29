@@ -14,12 +14,14 @@ import EmptyScreen from '~/src/components/screen/EmptyScreen';
 import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import CustomError from '~/src/types/CustomError';
-import { customerAtom, tokenWithStorage } from '~/src/utils/storage';
+import { AddressProps } from '~/src/types/CustomerProps';
+import { customerAtom, notificationWithStorage, tokenWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
 const AdressPage = () => {
   const { showMessage } = useShowNotification();
   const { tokenRefresh } = useRefreshToken();
+  const [notifications, setNotifications] = useAtom(notificationWithStorage);
   const [token] = useAtom(tokenWithStorage);
   const [customer, setCustomer] = useAtom(customerAtom);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -31,17 +33,28 @@ const AdressPage = () => {
         id,
       }),
     onSuccess(data, variables, context) {
+      let address: AddressProps | undefined = undefined;
       setCustomer({
         customer: {
           ...customer?.customer!,
           addresses: {
             ...customer?.customer?.addresses,
-            edges: customer?.customer?.addresses?.edges.filter(
-              (edge) => edge.node.id !== variables
-            )!,
+            edges: customer?.customer?.addresses?.edges.filter((edge) => {
+              if (edge.node.id === variables) address = edge.node;
+              return edge.node.id !== variables;
+            })!,
           },
         },
       });
+      const newNotifs = [
+        ...notifications,
+        {
+          message: `Vous avez supprimé votre adresse: ${address!.address1}, ${address!.city} ${address!.province ? address!.province : ''} ${address!.zip}, ${address!.country}`,
+          read: false,
+          title: 'Adresse supprimée',
+        },
+      ];
+      setNotifications(newNotifs);
       showMessage('Adresse supprimée', 'success');
     },
     onError: (error: CustomError, variables, context) => {

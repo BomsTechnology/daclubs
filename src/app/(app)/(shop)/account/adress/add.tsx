@@ -13,11 +13,12 @@ import CustomHeader from '~/src/components/header/CustomHeader';
 import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import CustomError from '~/src/types/CustomError';
-import { customerAtom, tokenWithStorage } from '~/src/utils/storage';
+import { customerAtom, notificationWithStorage, tokenWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 const AddAdressPage = () => {
   const { tokenRefresh } = useRefreshToken();
   const [token] = useAtom(tokenWithStorage);
+  const [, setNotifications] = useAtom(notificationWithStorage);
   const [customer, setCustomer] = useAtom(customerAtom);
   const { showMessage } = useShowNotification();
   const { control, handleSubmit, setError } = useForm();
@@ -45,6 +46,14 @@ const AddAdressPage = () => {
           },
         },
       });
+      setNotifications((prev) => [
+        ...prev,
+        {
+          message: `Vous avez modifié votre adresse: ${variables.address1}, ${variables.city} ${variables.province ? variables.province : ''} ${variables.zip}, ${variables.country}`,
+          read: false,
+          title: 'Nouvelle adresse',
+        },
+      ]);
       showMessage('Adresse ajouté', 'success');
       router.back();
     },

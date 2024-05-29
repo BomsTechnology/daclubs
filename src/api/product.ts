@@ -2,73 +2,48 @@ import { ProductInfiniteScrollProps, MainProductProps } from '../types/ProductPr
 import SearchProps, { FilterProps } from '../types/SearchProps';
 import client from '../utils/shopify';
 
-export const getProducts = async ({
-  pageParam = '',
-  filter = { price: { min: '', max: '' }, items: [] },
-}: {
-  pageParam?: string;
-  filter?: SearchProps;
-}): Promise<ProductInfiniteScrollProps> => {
-  console.log(pageParam);
-  const productsQuery = `
-      query getProducts {
-              products(
-                first: 50${pageParam ? `, after: "${pageParam}"` : ''}) {
-                edges {
-                  cursor
-                  node {
-                    featuredImage {
-                      altText
-                      height
-                      id
-                      url(transform: {maxHeight: 500, maxWidth: 500})
-                      width
-                    }
-                    availableForSale
-                    handle
-                    id
-                    productType
-                    publishedAt
-                    priceRange {
-                      maxVariantPrice {
-                        amount
-                        currencyCode
-                      }
-                      minVariantPrice {
-                        amount
-                        currencyCode
-                      }
-                    }
-                    title
-                    totalInventory
-                    vendor
-                  }
-                }
-                pageInfo {
-                    hasNextPage
-                    hasPreviousPage
-                    endCursor
-                }
-              }
-            }`;
-  const { data, errors } = await client.request(productsQuery);
-  if (errors) throw errors;
-  return data.products;
-};
-export const getProduct = async (id: string): Promise<MainProductProps> => {
-  const productQuery = `
-  query getProduct($id: ID!) {
-  product(id: $id) {
-        id
-        availableForSale
-        handle
-        featuredImage {
-          altText
-          height
+const queryFilter = `
           id
-          url(transform: {maxHeight: 500, maxWidth: 500})
-          width
-        }
+          label
+          type
+          values {
+            id
+            label
+            count
+            input
+          }
+`;
+
+const queryMinProduct = `
+featuredImage {
+  altText
+  height
+  id
+  url(transform: {maxHeight: 500, maxWidth: 500})
+  width
+}
+availableForSale
+handle
+id
+productType
+publishedAt
+priceRange {
+  maxVariantPrice {
+    amount
+    currencyCode
+  }
+  minVariantPrice {
+    amount
+    currencyCode
+  }
+}
+title
+totalInventory
+vendor
+`;
+
+const queryProduct = `
+        ${queryMinProduct}
         images(first: 10) {
           edges {
             cursor
@@ -81,7 +56,6 @@ export const getProduct = async (id: string): Promise<MainProductProps> => {
             }
           }
         }
-        vendor
         createdAt
         description
         descriptionHtml
@@ -96,27 +70,13 @@ export const getProduct = async (id: string): Promise<MainProductProps> => {
           }
         }
         onlineStoreUrl
-        priceRange {
-          maxVariantPrice {
-            amount
-            currencyCode
-          }
-          minVariantPrice {
-            amount
-            currencyCode
-          }
-        }
         options(first: 5) {
           id
           name
           values
         }
-        productType
-        publishedAt
         requiresSellingPlan
         tags
-        title
-        totalInventory
         trackingParameters
         updatedAt
         isGiftCard
@@ -167,6 +127,42 @@ export const getProduct = async (id: string): Promise<MainProductProps> => {
             }
           }
         }
+`;
+
+export const getProducts = async ({
+  pageParam = '',
+  filter = { price: { min: '', max: '' }, items: [] },
+}: {
+  pageParam?: string;
+  filter?: SearchProps;
+}): Promise<ProductInfiniteScrollProps> => {
+  console.log(pageParam);
+  const productsQuery = `
+      query getProducts {
+              products(
+                first: 50${pageParam ? `, after: "${pageParam}"` : ''}) {
+                edges {
+                  cursor
+                  node {
+                    ${queryMinProduct}
+                  }
+                }
+                pageInfo {
+                    hasNextPage
+                    hasPreviousPage
+                    endCursor
+                }
+              }
+            }`;
+  const { data, errors } = await client.request(productsQuery);
+  if (errors) throw errors;
+  return data.products;
+};
+export const getProduct = async (id: string): Promise<MainProductProps> => {
+  const productQuery = `
+  query getProduct($id: ID!) {
+  product(id: $id) {
+        ${queryProduct}
       }
     }`;
   const { data, errors } = await client.request(productQuery, {
@@ -185,15 +181,7 @@ export const getFilterByHandle = async (handle: string): Promise<FilterProps[]> 
       handle
       products(first: 10) {
         filters {
-          id
-          label
-          type
-          values {
-            id
-            label
-            count
-            input
-          }
+          ${queryFilter}
         }
       }
     }
@@ -214,15 +202,7 @@ export const getFilterById = async (id: string): Promise<FilterProps[]> => {
       handle
       products(first: 10) {
         filters {
-          id
-          label
-          type
-          values {
-            id
-            label
-            count
-            input
-          }
+          ${queryFilter}
         }
       }
     }

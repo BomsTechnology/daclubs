@@ -5,10 +5,7 @@ import CollectionProps, {
 import SearchProps from '../types/SearchProps';
 import client from '../utils/shopify';
 
-export const getCollectionById = async (id: string): Promise<MainCollectionProps> => {
-  const collectionQuery = `
-        query getCollectionById($id: ID!) {
-            collection(id: $id) {
+const queryCollection = `
                 description
                 descriptionHtml
                 handle
@@ -24,6 +21,41 @@ export const getCollectionById = async (id: string): Promise<MainCollectionProps
                     url(transform: {maxHeight: 500, maxWidth: 500})
                     width
                 }
+`;
+
+const queryProduct = `
+featuredImage {
+  altText
+  height
+  id
+  url(transform: {maxHeight: 500, maxWidth: 500})
+  width
+}
+availableForSale
+handle
+id
+productType
+publishedAt
+priceRange {
+  maxVariantPrice {
+    amount
+    currencyCode
+  }
+  minVariantPrice {
+    amount
+    currencyCode
+  }
+}
+title
+totalInventory
+vendor
+`;
+
+export const getCollectionById = async (id: string): Promise<MainCollectionProps> => {
+  const collectionQuery = `
+        query getCollectionById($id: ID!) {
+            collection(id: $id) {
+                ${queryCollection}
             }
         }`;
 
@@ -41,21 +73,7 @@ export const getCollections = async (): Promise<CollectionProps[]> => {
               edges {
                   cursor
                   node {
-                    description
-                    descriptionHtml
-                    handle
-                    id
-                    title
-                    trackingParameters
-                    updatedAt
-                    onlineStoreUrl
-                    image {
-                      altText
-                      height
-                      id
-                      url(transform: {maxHeight: 500, maxWidth: 500})
-                      width
-                    }
+                    ${queryCollection}
                   }
                 }
                 pageInfo {
@@ -104,31 +122,7 @@ export const getProductsInCollectionByHandle = async ({
                 edges {
                   cursor
                   node {
-                    featuredImage {
-                      altText
-                      height
-                      id
-                      url(transform: {maxHeight: 500, maxWidth: 500})
-                      width
-                    }
-                    availableForSale
-                    handle
-                    id
-                    productType
-                    publishedAt
-                    priceRange {
-                      maxVariantPrice {
-                        amount
-                        currencyCode
-                      }
-                      minVariantPrice {
-                        amount
-                        currencyCode
-                      }
-                    }
-                    title
-                    totalInventory
-                    vendor
+                    ${queryProduct}
                   }
                 }
                 pageInfo {
@@ -139,14 +133,12 @@ export const getProductsInCollectionByHandle = async ({
               }
             }
       }`;
-  console.log(productsInCollectionQuery);
   const { data, errors } = await client.request(productsInCollectionQuery, {
     variables: {
       handle,
     },
   });
   if (errors) {
-    console.log(errors);
     throw errors;
   }
   return data.collection;
@@ -155,9 +147,11 @@ export const getProductsInCollectionByHandle = async ({
 export const getProductsInCollectionById = async ({
   id,
   pageParam,
+  filter = { price: { min: '', max: '' }, items: [] },
 }: {
   id: string;
   pageParam?: string;
+  filter?: SearchProps;
 }): Promise<CollectionWithProductsProps> => {
   const productsInCollectionQuery = `
       query getProductsInCollectionByHandle($id: ID!) {
@@ -165,35 +159,24 @@ export const getProductsInCollectionById = async ({
               handle
               title
               id
-              products(first: 50${pageParam ? `, after: "${pageParam}"` : ''}) {
+              products(first: 50${pageParam ? `, after: "${pageParam}"` : ''}
+              ${
+                filter.items.length > 0 || filter.price.min || filter.price.max
+                  ? `,filters: [
+                  ${filter.items.length > 0 ? `${filter.items.join(`, `)},` : ``}
+                  ${
+                    filter.price.min || filter.price.max
+                      ? `
+                      {price: { ${filter.price.min && filter.price.max ? `min:${filter.price.min}, max:${filter.price.max}` : filter.price.min ? `min:${filter.price.min}` : filter.price.max ? `max:${filter.price.max}` : ''}}}
+                      `
+                      : ''
+                  }]`
+                  : ''
+              }) {
                 edges {
                   cursor
                   node {
-                    featuredImage {
-                      altText
-                      height
-                      id
-                      url(transform: {maxHeight: 500, maxWidth: 500})
-                      width
-                    }
-                    availableForSale
-                    handle
-                    id
-                    productType
-                    publishedAt
-                    priceRange {
-                      maxVariantPrice {
-                        amount
-                        currencyCode
-                      }
-                      minVariantPrice {
-                        amount
-                        currencyCode
-                      }
-                    }
-                    title
-                    totalInventory
-                    vendor
+                    ${queryProduct}
                   }
                 }
                 pageInfo {

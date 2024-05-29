@@ -28,8 +28,8 @@ const ProductSize = ({
         ...prev,
         {
           value: size,
-          eu: sizes[0].replace('EU', ''),
-          us: sizes[1].replace('US', ''),
+          eu: sizes[0] ? sizes[0].replace('EU', '') : '',
+          us: sizes[1] ? sizes[1].replace('US', '') : '',
         },
       ]);
     });
