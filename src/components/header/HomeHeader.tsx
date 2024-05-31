@@ -9,12 +9,12 @@ import HeaderButton from './HeaderButton';
 import HeaderTitle from './HeaderTitle';
 import NotificationBS from '../bottomsheet/NotificationBS';
 
-import { notificationWithStorage } from '~/src/utils/storage';
+import { notificationWithStorage, openNotificationAtom } from '~/src/utils/storage';
 
 const HomeHeader = () => {
-  const [notifications, setNotifications] = useAtom(notificationWithStorage);
   const { top } = useSafeAreaInsets();
-  const [isOpen, setIsOpen] = useState(false);
+  const [notifications] = useAtom(notificationWithStorage);
+  const [isOpen, setIsOpen] = useAtom(openNotificationAtom);
   const unRead = notifications.filter((item) => !item.read).length;
   return (
     <>
@@ -32,13 +32,7 @@ const HomeHeader = () => {
           </HeaderButton>
         </XStack>
       </YStack>
-      <NotificationBS
-        unRead={unRead}
-        notifications={notifications}
-        setNotifications={setNotifications}
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-      />
+      <NotificationBS isOpen={isOpen} setIsOpen={setIsOpen} />
     </>
   );
 };

@@ -1,3 +1,5 @@
+import ProductProps from './ProductProps';
+
 export default interface SearchProps {
   price: {
     min: string;
@@ -27,4 +29,14 @@ export interface FilterProps {
   label: string;
   type: string;
   values: FilterValueProps[];
+}
+
+export interface ProductSearchProps {
+  edges: ProductProps[];
+  productFilters: FilterProps[];
+  pageInfo: {
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    endCursor: string;
+  };
 }

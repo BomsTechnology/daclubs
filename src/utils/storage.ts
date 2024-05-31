@@ -15,9 +15,15 @@ export const settingWithStorage = atomWithMMKV<SettingProps>('setting', {
 
 export const cartWithStorage = atomWithMMKV<ProductCartProps[]>('cart', []);
 
-export const notificationWithStorage = atomWithMMKV<NotificationProps[]>('notification', []);
-
 export const wishlistWithStorage = atomWithMMKV<MainProductProps[]>('wishlist', []);
+export const notificationWithStorage = atomWithMMKV<NotificationProps[]>('notification', [
+  {
+    title: 'Bienvenue sur DaClubs 🎉 ',
+    message:
+      'Nous sommes ravis de vous accueillir sur DaClubs, votre application dédiée à la vente de sneakers de haute qualité. Découvrez notre vaste collection de modèles tendance et exclusifs, et trouvez la paire parfaite pour compléter votre style. Profitez d’une expérience de shopping unique et simplifiée, avec des offres spéciales et des nouveautés chaque semaine. Bon shopping!',
+    read: false,
+  },
+]);
 
 export const customerAtom = atom<{
   customer?: CustomerProps;
@@ -26,5 +32,7 @@ export const customerAtom = atom<{
 export const tokenWithStorage = atomWithMMKV<{
   token?: CustomerAccessTokenProps;
 }>('token', {});
+
+export const openNotificationAtom = atom<boolean>(false);
 
 export const checkoutWithStorage = atomWithMMKV<CheckoutProps | undefined>('checkout', undefined);

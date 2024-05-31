@@ -2,7 +2,7 @@ import { FlashList } from '@shopify/flash-list';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { H4, SizableText, XStack } from 'tamagui';
@@ -25,6 +25,7 @@ import { Container } from '~/tamagui.config';
 const Page = () => {
   const { showMessage } = useShowNotification();
   const [wishlist, setWishlist] = useAtom(wishlistWithStorage);
+  const [search, setSearch] = useState('');
   const [, setCustomer] = useAtom(customerAtom);
   const { tokenRefresh } = useRefreshToken();
   const [token] = useAtom(tokenWithStorage);
@@ -58,7 +59,7 @@ const Page = () => {
     refetch: refetchCollection,
   } = useQuery({
     queryKey: ['collection_with_product_by_handle'],
-    queryFn: () => getProductsInCollectionByHandle({ handle: 'nouveaute'}),
+    queryFn: () => getProductsInCollectionByHandle({ handle: 'nouveaute' }),
   });
 
   const setWishlistItem = (data: MainProductProps) => {
@@ -107,7 +108,18 @@ const Page = () => {
     <>
       <HomeHeader />
       <Container>
-        <SearchInput />
+        <SearchInput
+          value={search}
+          setValue={setSearch}
+          onSearch={() =>
+            router.push({
+              pathname: '/home/search',
+              params: {
+                query: search,
+              },
+            })
+          }
+        />
         <Animated.View style={{ marginTop: 15 }}>
           <ScrollView
             contentContainerStyle={{ gap: 15 }}
@@ -119,7 +131,7 @@ const Page = () => {
           </ScrollView>
         </Animated.View>
         <XStack mt={15} mb={10} justifyContent="space-between" alignItems="center">
-          <H4>{collectionWithProduct?.title}</H4>
+          <H4>{collectionWithProduct?.title} </H4>
           <SizableText
             onPress={() =>
               router.push({

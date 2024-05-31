@@ -24,7 +24,7 @@ const Page = () => {
   const { id } = useLocalSearchParams();
   const { tokenRefresh } = useRefreshToken();
   const [token] = useAtom(tokenWithStorage);
-  const [notifications, setNotifications] = useAtom(notificationWithStorage);
+  const [, setNotifications] = useAtom(notificationWithStorage);
   const [customer, setCustomer] = useAtom(customerAtom);
   const { showMessage } = useShowNotification();
 
@@ -75,15 +75,14 @@ const Page = () => {
           },
         },
       });
-      const newNotifs = [
-        ...notifications,
+      setNotifications((prev) => [
         {
           message: `Vous avez modifié votre adresse: ${address?.node.address1}, ${address?.node.city} ${address?.node.province ? address?.node.province : ''} ${address?.node.zip}, ${address?.node.country}`,
           read: false,
           title: 'Adresse mise à jour',
         },
-      ]
-      setNotifications(newNotifs);
+        ...prev,
+      ]);
       showMessage('Adresse mis a jour', 'success');
       router.back();
     },
@@ -109,12 +108,12 @@ const Page = () => {
         customer: data,
       });
       setNotifications((prev) => [
-        ...prev,
         {
           message: `Vous avez modifié votre adresse: ${address?.node.address1}, ${address?.node.city} ${address?.node.province ? address?.node.province : ''} ${address?.node.zip}, ${address?.node.country}`,
           read: false,
-          title: 'Adresse par défaut mise à jour',
+          title: 'Adresse mise à jour',
         },
+        ...prev,
       ]);
       showMessage('Adresse définie comme defaut', 'success');
       router.back();

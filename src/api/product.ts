@@ -1,5 +1,5 @@
 import { ProductInfiniteScrollProps, MainProductProps } from '../types/ProductProps';
-import SearchProps, { FilterProps } from '../types/SearchProps';
+import SearchProps, { FilterProps, ProductSearchProps } from '../types/SearchProps';
 import client from '../utils/shopify';
 
 const queryFilter = `
@@ -172,6 +172,64 @@ export const getProduct = async (id: string): Promise<MainProductProps> => {
   });
   if (errors) throw errors;
   return data.product;
+};
+
+export const searchProducts = async ({
+  query,
+  pageParam = '',
+  filter = { price: { min: '', max: '' }, items: [] },
+}: {
+  query: string;
+  pageParam?: string;
+  filter?: SearchProps;
+}): Promise<ProductSearchProps> => {
+  const searchProductsQuery = `
+  query searchProducts($query: String!) {
+    search(
+      query: $query,
+      first: 50${pageParam ? `, after: "${pageParam}"` : ''},
+      types: PRODUCT
+      ${
+        filter.items.length > 0 || filter.price.min || filter.price.max
+          ? `,productFilters: [
+          ${filter.items.length > 0 ? `${filter.items.join(`, `)},` : ``}
+          ${
+            filter.price.min || filter.price.max
+              ? `
+              {price: { ${filter.price.min && filter.price.max ? `min:${filter.price.min}, max:${filter.price.max}` : filter.price.min ? `min:${filter.price.min}` : filter.price.max ? `max:${filter.price.max}` : ''}}}
+              `
+              : ''
+          }]`
+          : ''
+      }
+      ) {
+          edges {
+            cursor
+            node {
+              ... on Product {
+                ${queryMinProduct}
+              }
+            }
+          }
+          productFilters {
+            ${queryFilter}
+          }
+          pageInfo {
+              hasNextPage
+              hasPreviousPage
+              endCursor
+          }
+        }
+      }`;
+  const { data, errors } = await client.request(searchProductsQuery, {
+    variables: {
+      query,
+    },
+  });
+  if (errors) {
+    throw errors;
+  }
+  return data.search;
 };
 
 export const getFilterByHandle = async (handle: string): Promise<FilterProps[]> => {

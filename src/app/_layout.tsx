@@ -10,6 +10,7 @@ import {
   Raleway_900Black,
   useFonts,
 } from '@expo-google-fonts/raleway';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ShopifyCheckoutSheetProvider } from '@shopify/checkout-sheet-kit';
 import { QueryClientProvider } from '@tanstack/react-query';
 import * as SplashScreen from 'expo-splash-screen';
@@ -24,7 +25,6 @@ import Roostack from '../components/Roostack';
 
 import { queryClient } from '~/src/utils/queryClient';
 import config from '~/tamagui.config';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 SplashScreen.preventAutoHideAsync();
 

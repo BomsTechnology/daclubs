@@ -8,18 +8,16 @@ import {
 import { useSegments } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { useAtom } from 'jotai';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Image } from 'react-native';
 import { Circle, XStack } from 'tamagui';
 
-import NotificationBS from '~/src/components/bottomsheet/NotificationBS';
 import HeaderButton from '~/src/components/header/HeaderButton';
 import HeaderTitle from '~/src/components/header/HeaderTitle';
-import NotificationProps from '~/src/types/NotificationProps';
-import { notificationWithStorage } from '~/src/utils/storage';
+import { notificationWithStorage, openNotificationAtom } from '~/src/utils/storage';
 const AppLayout = () => {
-  const [notifications, setNotifications] = useAtom(notificationWithStorage);
-  const [isOpen, setIsOpen] = useState(false);
+  const [, setIsOpen] = useAtom(openNotificationAtom);
+  const [notifications] = useAtom(notificationWithStorage);
   const segments = useSegments();
   const nestedCategoryPageOpened = useMemo(() => {
     return (
@@ -31,16 +29,7 @@ const AppLayout = () => {
 
   return (
     <Drawer
-      drawerContent={(props) => (
-        <CustomDrawerContent
-          props={props}
-          unRead={unRead}
-          notifications={notifications}
-          setNotifications={setNotifications}
-          setIsOpen={setIsOpen}
-          isOpen={isOpen}
-        />
-      )}
+      drawerContent={(props) => <CustomDrawerContent props={props} />}
       screenOptions={{
         swipeEnabled: !nestedCategoryPageOpened,
         headerShown: true,
@@ -107,34 +96,17 @@ const AppLayout = () => {
       />
       <Drawer.Screen
         name="store/index"
-        redirect
         options={{
-          title: 'Magasin Physique',
+          title: 'Contactez nous',
           headerShown: !nestedCategoryPageOpened,
-          drawerIcon: ({ color, size }) => (
-            <Ionicons name="storefront-outline" color={color} size={16} />
-          ),
+          drawerIcon: ({ color, size }) => <Ionicons name="call-outline" color={color} size={18} />,
         }}
       />
     </Drawer>
   );
 };
 
-const CustomDrawerContent = ({
-  props,
-  unRead,
-  notifications,
-  setNotifications,
-  isOpen,
-  setIsOpen,
-}: {
-  props: DrawerContentComponentProps;
-  unRead: number;
-  notifications: NotificationProps[];
-  setNotifications: (notifications: NotificationProps[]) => void;
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-}) => {
+const CustomDrawerContent = ({ props }: { props: DrawerContentComponentProps }) => {
   return (
     <>
       <DrawerContentScrollView {...props} contentContainerStyle={{ backgroundColor: '#fff' }}>
@@ -143,13 +115,6 @@ const CustomDrawerContent = ({
         </XStack>
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
-      <NotificationBS
-        unRead={unRead}
-        notifications={notifications}
-        setNotifications={setNotifications}
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-      />
     </>
   );
 };

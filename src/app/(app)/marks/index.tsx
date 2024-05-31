@@ -1,5 +1,7 @@
 import { FlashList } from '@shopify/flash-list';
 import { useQuery } from '@tanstack/react-query';
+import { router } from 'expo-router';
+import { useState } from 'react';
 import { View } from 'react-native';
 
 import { getCollections } from '~/src/api/collection';
@@ -8,6 +10,7 @@ import SearchInput from '~/src/components/form/SearchInput';
 import { Container } from '~/tamagui.config';
 
 const Page = () => {
+  const [search, setSearch] = useState('');
   const { data } = useQuery({
     queryKey: ['collections'],
     queryFn: () =>
@@ -17,7 +20,18 @@ const Page = () => {
   });
   return (
     <Container>
-      <SearchInput />
+      <SearchInput
+        value={search}
+        setValue={setSearch}
+        onSearch={() =>
+          router.push({
+            pathname: '/home/search',
+            params: {
+              query: search,
+            },
+          })
+        }
+      />
       <View style={{ marginTop: 25 }} />
       <FlashList
         data={data}

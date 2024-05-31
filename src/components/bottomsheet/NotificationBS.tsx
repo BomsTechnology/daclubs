@@ -6,26 +6,23 @@ import {
   BottomSheetFlatList,
 } from '@gorhom/bottom-sheet';
 import { BottomSheetDefaultBackdropProps } from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types';
+import { useAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Button, H5, XStack } from 'tamagui';
 
 import NotificationCard from '../card/NotificationCard';
 
-import NotificationProps from '~/src/types/NotificationProps';
+import { notificationWithStorage } from '~/src/utils/storage';
 
 const NotificationBS = ({
-  unRead,
   isOpen,
   setIsOpen,
-  notifications,
-  setNotifications,
 }: {
-  unRead: number;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  notifications: NotificationProps[];
-  setNotifications: (notifications: NotificationProps[]) => void;
 }) => {
+  const [notifications, setNotifications] = useAtom(notificationWithStorage);
+  const unRead = notifications.filter((item) => !item.read).length;
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const snapPoints = useMemo(() => ['80%', '90%'], []);
 

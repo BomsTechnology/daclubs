@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Spinner } from 'tamagui';
 
+import EmptyScreen from './EmptyScreen';
 import ErrorScreen from './ErrorScreen';
 import LoadingScreen from './LoadingScreen';
 import { getCollectionById, getProductsInCollectionById } from '../../api/collection';
@@ -140,6 +141,8 @@ const CategoryScreen = ({ id, from }: { id: string; from: string }) => {
             }}
             message={errorProducts?.message || 'Une erreur est survenue'}
           />
+        ) : products.length === 0 ? (
+          <EmptyScreen message="Aucun produit trouvé" />
         ) : (
           <FlashList
             data={products}

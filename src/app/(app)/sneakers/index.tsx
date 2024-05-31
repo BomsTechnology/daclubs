@@ -107,7 +107,7 @@ const Page = () => {
         {isFetching ? (
           <LoadingScreen />
         ) : products.length === 0 ? (
-          <EmptyScreen message="Aucun produit trouvée" />
+          <EmptyScreen message="Aucun produit trouvé" />
         ) : (
           <FlashList
             data={products}

@@ -47,12 +47,12 @@ const AddAdressPage = () => {
         },
       });
       setNotifications((prev) => [
-        ...prev,
         {
           message: `Vous avez modifié votre adresse: ${variables.address1}, ${variables.city} ${variables.province ? variables.province : ''} ${variables.zip}, ${variables.country}`,
           read: false,
           title: 'Nouvelle adresse',
         },
+        ...prev,
       ]);
       showMessage('Adresse ajouté', 'success');
       router.back();

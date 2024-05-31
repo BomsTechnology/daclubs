@@ -46,15 +46,14 @@ const AdressPage = () => {
           },
         },
       });
-      const newNotifs = [
-        ...notifications,
+      setNotifications((prev) => [
         {
           message: `Vous avez supprimé votre adresse: ${address!.address1}, ${address!.city} ${address!.province ? address!.province : ''} ${address!.zip}, ${address!.country}`,
           read: false,
           title: 'Adresse supprimée',
         },
-      ];
-      setNotifications(newNotifs);
+        ...prev,
+      ]);
       showMessage('Adresse supprimée', 'success');
     },
     onError: (error: CustomError, variables, context) => {
