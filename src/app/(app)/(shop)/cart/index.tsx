@@ -6,6 +6,7 @@ import {
 } from '@shopify/checkout-sheet-kit';
 import { FlashList } from '@shopify/flash-list';
 import { useMutation } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { SizableText, XStack, YStack } from 'tamagui';
@@ -17,7 +18,8 @@ import CustomHeader from '~/src/components/header/CustomHeader';
 import EmptyScreen from '~/src/components/screen/EmptyScreen';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import { ProductCartProps } from '~/src/types/ProductProps';
-import { cartWithStorage, tokenWithStorage } from '~/src/utils/storage';
+import { queryClient } from '~/src/utils/queryClient';
+import { cartWithStorage, orderWithStorage, tokenWithStorage } from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
 const Page = () => {
@@ -25,6 +27,7 @@ const Page = () => {
   const { showMessage } = useShowNotification();
   const [token] = useAtom(tokenWithStorage);
   const [cart, setCart] = useAtom(cartWithStorage);
+  const [, setOrders] = useAtom(orderWithStorage);
   const lines = cart.map((item) => ({
     attributes: [],
     merchandiseId: item.variant.id,
@@ -98,15 +101,18 @@ const Page = () => {
     const completed = shopifyCheckout.addEventListener(
       'completed',
       (event: CheckoutCompletedEvent) => {
-        // Lookup order on checkout completion
-        console.log(event);
-        const orderId = event.orderDetails.id;
+        setOrders((prev) => [...prev, event.orderDetails]);
+        setCart([]);
+        queryClient.invalidateQueries({ queryKey: ['customer', token.token?.accessToken] });
+        router.push({
+          pathname: '/cart/payment-success',
+          params: { orderId: event.orderDetails.id },
+        });
       }
     );
 
     const error = shopifyCheckout.addEventListener('error', (error) => {
-      // Do something on checkout error
-      console.log(error);
+      showMessage(error.message || 'Une erreur est survenue');
     });
 
     const pixel = shopifyCheckout.addEventListener('pixel', (event: PixelEvent) => {

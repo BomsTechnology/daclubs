@@ -2,14 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation } from '@tanstack/react-query';
 import { Link } from 'expo-router';
 import { useAtom } from 'jotai';
-import { useState } from 'react';
 import { FlatList } from 'react-native';
 import { Button, SizableText } from 'tamagui';
 
 import { deleteCustomerAdress } from '~/src/api/customer';
 import AdressCard from '~/src/components/card/AddressCard';
 import CustomHeader from '~/src/components/header/CustomHeader';
-import ConfirmModal from '~/src/components/modal/ConfirmModal';
 import EmptyScreen from '~/src/components/screen/EmptyScreen';
 import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
@@ -21,10 +19,9 @@ import { Container } from '~/tamagui.config';
 const AdressPage = () => {
   const { showMessage } = useShowNotification();
   const { tokenRefresh } = useRefreshToken();
-  const [notifications, setNotifications] = useAtom(notificationWithStorage);
+  const [, setNotifications] = useAtom(notificationWithStorage);
   const [token] = useAtom(tokenWithStorage);
   const [customer, setCustomer] = useAtom(customerAtom);
-  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const mutationDeleteCustomerAdress = useMutation({
     mutationFn: (id: string) =>
@@ -102,18 +99,6 @@ const AdressPage = () => {
           </Button>
         </Link>
       </Container>
-      <ConfirmModal
-        title="Se deconnecter"
-        description="Etes-vous sur de vouloir vous deconnecter ?"
-        confirmText="Annuler"
-        cancelText="Se deconnecter"
-        onCancel={() => {
-          setIsModalVisible(false);
-          //mutationdeleteAccessToken.mutate(token.token?.accessToken!);
-        }}
-        onConfirm={() => setIsModalVisible(false)}
-        open={isModalVisible}
-      />
     </>
   );
 };

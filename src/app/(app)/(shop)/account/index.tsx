@@ -43,7 +43,7 @@ const Page = () => {
       title: 'Mes commandes',
       icon: <Ionicons name="bag-outline" size={20} color="black" />,
       action: () => router.push('/account/order/'),
-      isAuth: true,
+      isAuth: false,
     },
     {
       title: 'Mes adresses',

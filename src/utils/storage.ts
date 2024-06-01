@@ -1,3 +1,4 @@
+import { CheckoutCompletedEvent } from '@shopify/checkout-sheet-kit';
 import { atom } from 'jotai';
 
 import { atomWithMMKV } from './atomWithMMKV';
@@ -14,6 +15,8 @@ export const settingWithStorage = atomWithMMKV<SettingProps>('setting', {
 });
 
 export const cartWithStorage = atomWithMMKV<ProductCartProps[]>('cart', []);
+
+export const orderWithStorage = atomWithMMKV<CheckoutCompletedEvent.OrderDetails[]>('order', []);
 
 export const wishlistWithStorage = atomWithMMKV<MainProductProps[]>('wishlist', []);
 export const notificationWithStorage = atomWithMMKV<NotificationProps[]>('notification', [

@@ -116,6 +116,61 @@ const customerQuery = `
                         title
                         quantity
                         currentQuantity
+                        variant {
+                          id
+                          image {
+                            url(transform: {maxHeight: 10, maxWidth: 10})
+                            width
+                            height
+                            altText
+                            id
+                          }
+                          availableForSale
+                          barcode
+                          currentlyNotInStock
+                          title
+                          unitPrice {
+                            amount
+                            currencyCode
+                          }
+                          unitPriceMeasurement {
+                            measuredType
+                            quantityUnit
+                            quantityValue
+                            referenceUnit
+                            referenceValue
+                          }
+                          weight
+                          weightUnit
+                          taxable
+                          sku
+                          selectedOptions {
+                            name
+                            value
+                          }
+                          product{
+                            id
+                            vendor
+                            featuredImage {
+                              url(transform: {maxHeight: 500, maxWidth: 500})
+                              width
+                              height
+                              altText
+                              id
+                            }
+                          }
+                          compareAtPrice {
+                            amount
+                            currencyCode
+                          }
+                          price {
+                            amount
+                            currencyCode
+                          }
+                          requiresShipping
+                          quantityAvailable
+                          
+                        }
                       }
                       cursor
                     }

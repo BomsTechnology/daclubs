@@ -36,6 +36,11 @@ export interface VariantProps {
   weight: number;
   weightUnit: string;
   unitPrice: PriceProps;
+  product: {
+    id: string;
+    featuredImage: ImageProps;
+    vendor?: string;
+  };
 }
 
 export interface MainProductProps {
