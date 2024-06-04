@@ -19,12 +19,18 @@ import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import CustomError from '~/src/types/CustomError';
 import { MainProductProps } from '~/src/types/ProductProps';
-import { customerAtom, tokenWithStorage, wishlistWithStorage } from '~/src/utils/storage';
+import {
+  customerAtom,
+  settingWithStorage,
+  tokenWithStorage,
+  wishlistWithStorage,
+} from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
 const Page = () => {
   const { showMessage } = useShowNotification();
   const [wishlist, setWishlist] = useAtom(wishlistWithStorage);
+  const [, setSetting] = useAtom(settingWithStorage);
   const [search, setSearch] = useState('');
   const [, setCustomer] = useAtom(customerAtom);
   const { tokenRefresh } = useRefreshToken();
@@ -89,6 +95,10 @@ const Page = () => {
       }
     }
   }, [statusCustomer]);
+
+  useEffect(() => {
+    setSetting((prev) => ({ ...prev, alreadyOpen: true }));
+  }, []);
 
   if (isPendingCollections) return <LoadingScreen />;
 

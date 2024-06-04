@@ -43,8 +43,8 @@ const PaymentSuccess = () => {
           keyExtractor={(item, index) => index.toString()}
         />
       </Container>
-      <YStack bg="#fff" w="100%" p={20} onPress={() => router.replace('/(app)/(shop)/home/')}>
-        <Button>Retour a la page d'accueil</Button>
+      <YStack bg="#fff" w="100%" p={20} onPress={() => router.back()}>
+        <Button>Retour</Button>
       </YStack>
     </>
   );

@@ -19,7 +19,12 @@ import EmptyScreen from '~/src/components/screen/EmptyScreen';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import { ProductCartProps } from '~/src/types/ProductProps';
 import { queryClient } from '~/src/utils/queryClient';
-import { cartWithStorage, orderWithStorage, tokenWithStorage } from '~/src/utils/storage';
+import {
+  cartWithStorage,
+  notificationWithStorage,
+  orderWithStorage,
+  tokenWithStorage,
+} from '~/src/utils/storage';
 import { Container } from '~/tamagui.config';
 
 const Page = () => {
@@ -28,6 +33,7 @@ const Page = () => {
   const [token] = useAtom(tokenWithStorage);
   const [cart, setCart] = useAtom(cartWithStorage);
   const [, setOrders] = useAtom(orderWithStorage);
+  const [, setNotifications] = useAtom(notificationWithStorage);
   const lines = cart.map((item) => ({
     attributes: [],
     merchandiseId: item.variant.id,
@@ -103,6 +109,14 @@ const Page = () => {
       (event: CheckoutCompletedEvent) => {
         setOrders((prev) => [...prev, event.orderDetails]);
         setCart([]);
+        setNotifications((prev) => [
+          {
+            message: `Votre commande #${event.orderDetails.id.replace('gid://shopify/OrderIdentity/', '')}: ${event.orderDetails.cart.lines.length} Produit${event.orderDetails.cart.lines.length > 1 ? 's' : ''}(${event.orderDetails.cart.price.total!.amount} ${event.orderDetails.cart.price.total?.currencyCode}) est en cours de traitement.`,
+            read: false,
+            title: 'Commande passée avec succès 🎉',
+          },
+          ...prev,
+        ]);
         queryClient.invalidateQueries({ queryKey: ['customer', token.token?.accessToken] });
         router.push({
           pathname: '/cart/payment-success',
@@ -113,6 +127,14 @@ const Page = () => {
 
     const error = shopifyCheckout.addEventListener('error', (error) => {
       showMessage(error.message || 'Une erreur est survenue');
+      setNotifications((prev) => [
+        {
+          message: `Votre commande a echouée, veuillez reessayer.`,
+          read: false,
+          title: 'Commande échouée 🚨',
+        },
+        ...prev,
+      ]);
     });
 
     const pixel = shopifyCheckout.addEventListener('pixel', (event: PixelEvent) => {
