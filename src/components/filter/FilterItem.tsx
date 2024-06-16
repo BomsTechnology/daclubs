@@ -34,14 +34,16 @@ const FilterItem = ({
     />
   );
   return (
-    <FlatList
-      data={props.values}
-      keyExtractor={(item, index) => `${item.id}-${index}-${props.id}`}
-      renderItem={renderItem}
-      contentContainerStyle={{
-        paddingBottom: 150,
-      }}
-    />
+    <>
+      <FlatList
+        data={props.values}
+        keyExtractor={(item, index) => `${item.id}-${index}-${props.id}`}
+        renderItem={renderItem}
+        contentContainerStyle={{
+          paddingBottom: 150,
+        }}
+      />
+    </>
   );
 };
 

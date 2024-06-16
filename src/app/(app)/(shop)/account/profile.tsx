@@ -3,6 +3,7 @@ import { useAtom } from 'jotai';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
+import { Linking } from 'react-native';
 import { SizableText, YStack, ScrollView, XStack } from 'tamagui';
 
 import { CustomerCreateInput, updateCustomer } from '~/src/api/customer';
@@ -10,6 +11,7 @@ import Button from '~/src/components/form/Button';
 import CountrySelect from '~/src/components/form/CountrySelect';
 import Input from '~/src/components/form/Input';
 import CustomHeader from '~/src/components/header/CustomHeader';
+import ConfirmModal from '~/src/components/modal/ConfirmModal';
 import useRefreshToken from '~/src/hooks/useRefreshToken';
 import useShowNotification from '~/src/hooks/useShowNotification';
 import CustomError from '~/src/types/CustomError';
@@ -20,6 +22,7 @@ export default function Page() {
   const { tokenRefresh } = useRefreshToken();
   const [token, setToken] = useAtom(tokenWithStorage);
   const [customer, setCustomer] = useAtom(customerAtom);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const { showMessage } = useShowNotification();
   const parsedNumber = parsePhoneNumberFromString(customer.customer?.phone!);
   const [phoneCode, setPhoneCode] = useState('+' + parsedNumber?.countryCallingCode);
@@ -40,7 +43,7 @@ export default function Page() {
         token: token.token?.accessToken!,
         props: input,
       }),
-    onSuccess(data, variables, context) {
+    onSuccess(data) {
       setCustomer({
         customer: data.customer,
       });
@@ -49,7 +52,7 @@ export default function Page() {
       });
       showMessage('Votre profil a bien été mis a jour', 'success');
     },
-    onError: (error: CustomError, variables, context) => {
+    onError: (error: CustomError, variables) => {
       if (error.code === 'TOKEN_INVALID' || error.code === 'INVALID_MULTIPASS_REQUEST') {
         tokenRefresh.mutate();
         showMessage('Veillez patienter...', 'normal');
@@ -194,8 +197,23 @@ export default function Page() {
             disabled={mutationUpdateCustomer.isPending}>
             Editer
           </Button>
+          <Button mt={10} opacity={0.2} bg="red" onPress={() => setIsModalVisible(true)}>
+            Supprimer mon compte
+          </Button>
         </ScrollView>
       </Container>
+      <ConfirmModal
+        title="Supprimer mon compte"
+        description="Etes-vous sur de vouloir supprimer votre compte ?"
+        confirmText="Annuler"
+        cancelText="Supprimer"
+        onCancel={() => {
+          setIsModalVisible(false);
+          Linking.openURL('https://daclub-snkrs.com/pages/supprimer-mon-compte')
+        }}
+        onConfirm={() => setIsModalVisible(false)}
+        open={isModalVisible}
+      />
     </>
   );
 }

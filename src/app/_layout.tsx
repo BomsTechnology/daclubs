@@ -1,3 +1,4 @@
+import { ApolloProvider } from '@apollo/client';
 import {
   Raleway_100Thin,
   Raleway_200ExtraLight,
@@ -22,6 +23,7 @@ import { ToastProvider } from 'react-native-toast-notifications';
 import { TamaguiProvider } from 'tamagui';
 
 import Roostack from '../components/Roostack';
+import clientAdmin from '../utils/shopifyAdmin';
 
 import { queryClient } from '~/src/utils/queryClient';
 import config from '~/tamagui.config';
@@ -62,7 +64,9 @@ export default function Root() {
                 swipeEnabled
                 textStyle={{ fontFamily: 'RalewayRegular', textAlign: 'center' }}>
                 <ShopifyCheckoutSheetProvider>
-                  <Roostack />
+                  <ApolloProvider client={clientAdmin}>
+                    <Roostack />
+                  </ApolloProvider>
                   <StatusBar style="auto" />
                 </ShopifyCheckoutSheetProvider>
               </ToastProvider>

@@ -1,0 +1,39 @@
+{
+  "cli": {
+    "version": ">= 9.2.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "env": {
+        "EXPO_PUBLIC_STORE_DOMAIN": "https://daclubsneakers.myshopify.com",
+        "EXPO_PUBLIC_API_VERSION": "2024-04",
+        "EXPO_PUBLIC_ACCESS_TOKEN_STOREFRONT": "506833d8cc93293647ced0b1defa899c"
+      },
+      "distribution": "internal"
+    },
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_STORE_DOMAIN": "https://daclubsneakers.myshopify.com",
+        "EXPO_PUBLIC_API_VERSION": "2024-04",
+        "EXPO_PUBLIC_ACCESS_TOKEN_STOREFRONT": "506833d8cc93293647ced0b1defa899c"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-services.json",
+        "track": "internal"
+      },
+      "ios": {
+        "appleId": "marcelin.sigha@icloud.com",
+        "ascAppId": "6504210116",
+        "appleTeamId": "QJ28A22SBC"
+      }
+    }
+  }
+}

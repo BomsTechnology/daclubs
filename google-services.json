@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "930274796195",
+    "project_id": "m2med-a8f23",
+    "storage_bucket": "m2med-a8f23.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930274796195:android:e863d29fb4fcc4c16d9516",
+        "android_client_info": {
+          "package_name": "com.bomstechnology.m2med"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDx76m2tTQr6vYQGY_hRFXVVPWSZkEv3kw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

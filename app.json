@@ -23,7 +23,7 @@
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#000000"
     },
     "assetBundlePatterns": [
@@ -38,7 +38,17 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
+      "versionCode": 1,
+      "googleServicesFile": "./google-services.json",
       "package": "com.bomstechnology.daclub"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "e6584422-7478-4151-bc5a-ecf7219af2e4"
+      }
     }
   }
 }
