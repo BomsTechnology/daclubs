@@ -56,9 +56,11 @@ const AccountHeader = ({ customer }: { customer: CustomerProps | undefined }) =>
                 <SizableText fontSize={12} lineHeight={14} numberOfLines={1}>
                   {customer.email}
                 </SizableText>
-                <SizableText fontSize={12} lineHeight={14} numberOfLines={1}>
-                  {customer.phone}
-                </SizableText>
+                {customer.phone && (
+                  <SizableText fontSize={12} lineHeight={14} numberOfLines={1}>
+                    {customer.phone}
+                  </SizableText>
+                )}
               </YStack>
             </YStack>
           </XStack>

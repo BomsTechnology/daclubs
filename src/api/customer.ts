@@ -6,7 +6,7 @@ export interface CustomerCreateInput {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
+  phone?: string;
   acceptsMarketing: boolean;
   password: string;
 }

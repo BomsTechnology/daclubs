@@ -8,7 +8,7 @@ const OrderListProductCard = ({ ...props }: MainLineItemProps) => {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.imageContainer}>
-          {props.variant.product && (
+          {(props.variant && props.variant.product) && (
             <FastImage
               source={{
                 uri: props.variant.product.featuredImage.url,
@@ -19,7 +19,7 @@ const OrderListProductCard = ({ ...props }: MainLineItemProps) => {
             />
           )}
         </View>
-        <View style={styles.info}>
+        { props.variant ? <View style={styles.info}>
           <Text style={styles.brand}>{props.variant.product.vendor}</Text>
           <Text style={styles.name}>{props.title}</Text>
           {props.variant.selectedOptions.map((option, index) => (
@@ -35,7 +35,10 @@ const OrderListProductCard = ({ ...props }: MainLineItemProps) => {
               {props.variant.price.amount} {props.variant.price.currencyCode}
             </Text>
           </View>
+        </View> : <View style={styles.info}>
+        <Text style={styles.brand}>Produit introuvable</Text>
         </View>
+        }
       </View>
     </View>
   );

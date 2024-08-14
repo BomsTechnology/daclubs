@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 8,
     aspectRatio: 3 / 4,
+    zIndex: -1
   },
   image: {
     height: '100%',

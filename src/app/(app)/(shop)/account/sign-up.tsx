@@ -1,8 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { Link, router } from 'expo-router';
 import { useAtom } from 'jotai';
-import { RESET } from 'jotai/utils';
-import { useState } from 'react';
+//import { useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { SizableText, YStack, ScrollView, XStack } from 'tamagui';
 
@@ -13,7 +12,7 @@ import {
   CustomerAccessTokenCreateInput,
 } from '~/src/api/customer';
 import Button from '~/src/components/form/Button';
-import CountrySelect from '~/src/components/form/CountrySelect';
+//import CountrySelect from '~/src/components/form/CountrySelect';
 import Input from '~/src/components/form/Input';
 import CustomHeader from '~/src/components/header/CustomHeader';
 import useShowNotification from '~/src/hooks/useShowNotification';
@@ -23,7 +22,7 @@ import { Container } from '~/tamagui.config';
 
 export default function Page() {
   const [, setToken] = useAtom(tokenWithStorage);
-  const [phoneCode, setPhoneCode] = useState('+33');
+  //const [phoneCode, setPhoneCode] = useState('+33');
   const { showMessage } = useShowNotification();
   const { control, handleSubmit, setError } = useForm<FieldValues>();
 
@@ -56,13 +55,13 @@ export default function Page() {
   });
 
   const onSubmit = (data: FieldValues) => {
-    if (!phoneCode) {
+    /*if (!phoneCode) {
       setError('phonenumber', {
         type: 'manual',
         message: 'Le code pays est obligatoire',
       });
       return;
-    }
+    }*/
     if (data.password !== data.confirmPassword) {
       setError('confirmPassword', {
         type: 'manual',
@@ -75,7 +74,7 @@ export default function Page() {
       lastName: data.lastname,
       acceptsMarketing: true,
       email: data.email,
-      phone: `${phoneCode}${data.phonenumber}`,
+      //phone: `${phoneCode}${data.phonenumber}`,
       password: data.password,
     });
   };
@@ -108,7 +107,7 @@ export default function Page() {
               }}
             />
           </YStack>
-          <YStack mt={10}>
+          {/*<YStack mt={10} display="none">
             <SizableText mb={10} fontWeight="700">
               Numéro de téléphone
             </SizableText>
@@ -131,7 +130,7 @@ export default function Page() {
                 />
               </YStack>
             </XStack>
-          </YStack>
+                </YStack>*/}
           <YStack mt={10}>
             <SizableText mb={10} fontWeight="700">
               Adresse E-mail

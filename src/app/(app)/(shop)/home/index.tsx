@@ -4,7 +4,6 @@ import { router } from 'expo-router';
 import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import Animated from 'react-native-reanimated';
 import { H4, SizableText, XStack } from 'tamagui';
 
 import { getCollections, getProductsInCollectionByHandle } from '~/src/api/collection';
@@ -121,6 +120,7 @@ const Page = () => {
         <SearchInput
           value={search}
           setValue={setSearch}
+          isPrefetch
           onSearch={() =>
             router.push({
               pathname: '/home/search',
@@ -130,7 +130,7 @@ const Page = () => {
             })
           }
         />
-        <Animated.View style={{ marginTop: 15 }}>
+        <View style={{ marginTop: 15, zIndex: -1 }}>
           <ScrollView
             contentContainerStyle={{ gap: 15 }}
             horizontal
@@ -139,8 +139,8 @@ const Page = () => {
               <HorizontalCollectionCard key={collection.node.id} collection={collection} />
             ))}
           </ScrollView>
-        </Animated.View>
-        <XStack mt={15} mb={10} justifyContent="space-between" alignItems="center">
+        </View>
+        <XStack mt={15} zIndex={-1} mb={10} justifyContent="space-between" alignItems="center">
           <H4>{collectionWithProduct?.title} </H4>
           <SizableText
             onPress={() =>

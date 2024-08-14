@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
+//import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { Linking } from 'react-native';
@@ -8,7 +8,7 @@ import { SizableText, YStack, ScrollView, XStack } from 'tamagui';
 
 import { CustomerCreateInput, updateCustomer } from '~/src/api/customer';
 import Button from '~/src/components/form/Button';
-import CountrySelect from '~/src/components/form/CountrySelect';
+//import CountrySelect from '~/src/components/form/CountrySelect';
 import Input from '~/src/components/form/Input';
 import CustomHeader from '~/src/components/header/CustomHeader';
 import ConfirmModal from '~/src/components/modal/ConfirmModal';
@@ -24,11 +24,11 @@ export default function Page() {
   const [customer, setCustomer] = useAtom(customerAtom);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { showMessage } = useShowNotification();
-  const parsedNumber = parsePhoneNumberFromString(customer.customer?.phone!);
-  const [phoneCode, setPhoneCode] = useState('+' + parsedNumber?.countryCallingCode);
+  //const parsedNumber = parsePhoneNumberFromString(customer.customer?.phone!);
+  //const [phoneCode, setPhoneCode] = useState('+' + parsedNumber?.countryCallingCode);
   const { control, handleSubmit, setError } = useForm<FieldValues>({
     defaultValues: {
-      phonenumber: parsedNumber?.nationalNumber,
+      //phonenumber: parsedNumber?.nationalNumber,
       firstname: customer.customer?.firstName,
       lastname: customer.customer?.lastName,
       email: customer.customer?.email,
@@ -64,13 +64,13 @@ export default function Page() {
   });
 
   const onSubmit = (data: FieldValues) => {
-    if (!phoneCode) {
+    /*if (!phoneCode) {
       setError('phonenumber', {
         type: 'manual',
         message: 'Le code pays est obligatoire',
       });
       return;
-    }
+    }*/
     if (data.password !== data.confirmPassword) {
       setError('confirmPassword', {
         type: 'manual',
@@ -83,7 +83,7 @@ export default function Page() {
       lastName: data.lastname,
       acceptsMarketing: true,
       email: data.email,
-      phone: `${phoneCode}${data.phonenumber}`,
+      //phone: `${phoneCode}${data.phonenumber}`,
       password: data.password,
     });
   };
@@ -116,7 +116,7 @@ export default function Page() {
               }}
             />
           </YStack>
-          <YStack mt={10}>
+          {/*<YStack mt={10} display="none">
             <SizableText mb={10} fontWeight="700">
               Numéro de téléphone
             </SizableText>
@@ -139,7 +139,7 @@ export default function Page() {
                 />
               </YStack>
             </XStack>
-          </YStack>
+                </YStack>*/}
           <YStack mt={10}>
             <SizableText mb={10} fontWeight="700">
               Adresse E-mail

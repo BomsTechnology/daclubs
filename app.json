@@ -2,7 +2,7 @@
   "expo": {
     "name": "Da'Club",
     "slug": "daclub",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "scheme": "com.daclub",
     "web": {
       "bundler": "metro",
@@ -31,14 +31,15 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bomstechnology.daclub"
+      "bundleIdentifier": "com.bomstechnology.daclub",
+      "buildNumber": "5"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "versionCode": 1,
+      "versionCode": 2,
       "googleServicesFile": "./google-services.json",
       "package": "com.bomstechnology.daclub"
     },

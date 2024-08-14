@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
@@ -52,7 +51,7 @@ const ProductCard = ({
             {product.title}
           </Text>
           <Text style={styles.price} numberOfLines={1}>
-            {`${product.priceRange.minVariantPrice.amount} ${product.priceRange.minVariantPrice.currencyCode}`}
+            {`${product.priceRange.minVariantPrice.amount} €`}
           </Text>
         </View>
       </Pressable>
@@ -88,7 +87,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    transform: [{ rotate: '-30deg' }],
   },
   ml: {
     marginLeft: 5,
@@ -112,7 +110,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   price: {
-    fontFamily: 'RalewayExtraBold',
-    fontSize: 20,
+    fontFamily: 'RalewayRegular',
+    fontSize: 18,
   },
 });

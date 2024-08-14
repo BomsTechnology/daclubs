@@ -232,6 +232,30 @@ export const searchProducts = async ({
   return data.search;
 };
 
+export const predictiveSearchProducts = async (query: string): Promise<MainProductProps[]> => {
+  const searchProductsQuery = `
+  query suggestions($query: String!) {
+    predictiveSearch(
+      query: $query,
+      types: PRODUCT,
+      limit: 10
+      ) { 
+        products {
+            ${queryMinProduct}
+        }   
+        }
+      }`;
+  const { data, errors } = await client.request(searchProductsQuery, {
+    variables: {
+      query,
+    },
+  });
+  if (errors) {
+    throw errors;
+  }
+  return data.predictiveSearch.products || [];
+};
+
 export const getFilterByHandle = async (handle: string): Promise<FilterProps[]> => {
   const filterQuery = `
   query Facets($handle: String) {

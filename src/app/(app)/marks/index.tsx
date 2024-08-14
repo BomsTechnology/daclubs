@@ -20,7 +20,7 @@ const Page = () => {
   });
   return (
     <Container>
-      <SearchInput
+      {/*<SearchInput
         value={search}
         setValue={setSearch}
         onSearch={() =>
@@ -31,8 +31,8 @@ const Page = () => {
             },
           })
         }
-      />
-      <View style={{ marginTop: 25 }} />
+      />*/}
+      <View style={{ marginTop: 25, zIndex: -1 }} />
       <FlashList
         data={data}
         numColumns={2}
@@ -40,7 +40,7 @@ const Page = () => {
         renderItem={({ item, index }) => (
           <VerticalCollectionCard {...item} peer={(index + 1) % 2 === 0} />
         )}
-        estimatedItemSize={100}
+        estimatedItemSize={50}
         contentContainerStyle={{ paddingBottom: 50 }}
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
       />

@@ -18,7 +18,9 @@ const ProductExtra = () => {
       </XStack>
       <XStack alignItems="center" gap={10}>
         <Ionicons name="headset-outline" size={20} color="black" />
-        <SizableText>Service Client disponible 24/7</SizableText>
+        <SizableText numberOfLines={1}>
+          Service Client disponible Lundi au samedi 9h-18h
+        </SizableText>
       </XStack>
     </YStack>
   );
