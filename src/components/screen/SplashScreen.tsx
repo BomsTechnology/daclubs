@@ -8,7 +8,7 @@ const SplashScreen = () => {
       <Image
         source={require('~/assets/images/logo2.png')}
         resizeMode="cover"
-        style={{ width: 220, height: 70 }}
+        style={{ width: 250, height: 200 }}
       />
     </Container>
   );

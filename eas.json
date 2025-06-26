@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 9.2.0"
+    "version": ">= 9.2.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -10,13 +11,15 @@
     "preview": {
       "env": {
         "EXPO_PUBLIC_STORE_DOMAIN": "https://daclubsneakers.myshopify.com",
-        "EXPO_PUBLIC_API_VERSION": "2024-04",
+        "EXPO_PUBLIC_API_VERSION": "2024-07",
         "EXPO_PUBLIC_ACCESS_TOKEN_STOREFRONT": "506833d8cc93293647ced0b1defa899c"
       },
       "distribution": "internal"
     },
     "production": {
+      "autoIncrement": true,
       "env": {
+        "EXPO_NO_KEYCHAIN": "1",
         "EXPO_PUBLIC_STORE_DOMAIN": "https://daclubsneakers.myshopify.com",
         "EXPO_PUBLIC_API_VERSION": "2024-04",
         "EXPO_PUBLIC_ACCESS_TOKEN_STOREFRONT": "506833d8cc93293647ced0b1defa899c"

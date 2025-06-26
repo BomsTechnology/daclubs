@@ -2,7 +2,7 @@
   "expo": {
     "name": "Da'Club",
     "slug": "daclub",
-    "version": "1.1.0",
+    "version": "1.1.4",
     "scheme": "com.daclub",
     "web": {
       "bundler": "metro",
@@ -31,8 +31,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bomstechnology.daclub",
-      "buildNumber": "5"
+      "bundleIdentifier": "com.bomstechnology.daclub"
     },
     "android": {
       "adaptiveIcon": {
@@ -50,6 +49,12 @@
       "eas": {
         "projectId": "e6584422-7478-4151-bc5a-ecf7219af2e4"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e6584422-7478-4151-bc5a-ecf7219af2e4"
     }
   }
 }

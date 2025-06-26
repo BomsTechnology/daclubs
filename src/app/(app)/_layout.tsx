@@ -15,6 +15,8 @@ import { Circle, XStack } from 'tamagui';
 import HeaderButton from '~/src/components/header/HeaderButton';
 import HeaderTitle from '~/src/components/header/HeaderTitle';
 import { notificationWithStorage, openNotificationAtom } from '~/src/utils/storage';
+import { DrawerActions, ParamListBase, useNavigation } from "@react-navigation/native";
+import type { DrawerNavigationProp } from "@react-navigation/drawer/src/types";
 const AppLayout = () => {
   const [, setIsOpen] = useAtom(openNotificationAtom);
   const [notifications] = useAtom(notificationWithStorage);
@@ -26,7 +28,7 @@ const AppLayout = () => {
     );
   }, [segments]);
   const unRead = notifications.filter((item) => !item.read).length;
-
+  const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
   return (
     <Drawer
       drawerContent={(props) => <CustomDrawerContent props={props} />}
@@ -48,9 +50,10 @@ const AppLayout = () => {
           justifyContent: 'center',
         },
         headerLeft: () => (
-          <HeaderButton ml={20} mt={20}>
-            <DrawerToggleButton tintColor="#000" />
+          <HeaderButton ml={20} mt={20} onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}>
+            <Ionicons name="menu" size={20} color="#000" />
           </HeaderButton>
+
         ),
         headerStyle: {
           backgroundColor: '#F8F9FA',
@@ -59,6 +62,12 @@ const AppLayout = () => {
           shadowOpacity: 0,
         },
         headerTitle: () => <HeaderTitle mt={20} />,
+        headerTitleAlign: 'center',
+        headerTitleStyle: {
+          backgroundColor: '#000',
+          width: '100%',
+          justifyContent: 'center',
+        },
         headerRight: () => (
           <HeaderButton position="relative" mr={20} mt={20} onPress={() => setIsOpen(true)}>
             {unRead > 0 && (
@@ -111,7 +120,7 @@ const CustomDrawerContent = ({ props }: { props: DrawerContentComponentProps }) 
     <>
       <DrawerContentScrollView {...props} contentContainerStyle={{ backgroundColor: '#fff' }}>
         <XStack pb={20} px={20} pt={10} borderBottomWidth={1} borderBottomColor="#EBEDF3">
-          <Image source={require('~/assets/images/logo.png')} />
+          <Image style={{ width: 100, height: 50 }} resizeMode="contain" source={require('~/assets/images/logo3.png')} />
         </XStack>
         <DrawerItemList {...props} />
       </DrawerContentScrollView>

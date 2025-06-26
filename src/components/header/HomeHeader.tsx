@@ -1,7 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { DrawerToggleButton } from '@react-navigation/drawer';
 import { useAtom } from 'jotai';
-import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Circle, XStack, YStack } from 'tamagui';
 
@@ -10,18 +8,21 @@ import HeaderTitle from './HeaderTitle';
 import NotificationBS from '../bottomsheet/NotificationBS';
 
 import { notificationWithStorage, openNotificationAtom } from '~/src/utils/storage';
+import { DrawerActions, ParamListBase, useNavigation } from "@react-navigation/native";
+import type { DrawerNavigationProp } from "@react-navigation/drawer/src/types";
 
 const HomeHeader = () => {
   const { top } = useSafeAreaInsets();
   const [notifications] = useAtom(notificationWithStorage);
   const [isOpen, setIsOpen] = useAtom(openNotificationAtom);
   const unRead = notifications.filter((item) => !item.read).length;
+  const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
   return (
     <>
       <YStack bg="#F8F9FA" pt={top + 10} px={20}>
         <XStack justifyContent="space-between">
-          <HeaderButton>
-            <DrawerToggleButton tintColor="#000" />
+          <HeaderButton onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}>
+            <Ionicons name="menu" size={20} color="#000" />
           </HeaderButton>
           <HeaderTitle />
           <HeaderButton position="relative" onPress={() => setIsOpen(true)}>
